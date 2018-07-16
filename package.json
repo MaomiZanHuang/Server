@@ -1,0 +1,29 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "egg-bin dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MaomiZanHuang/Server.git"
+  },
+  "author": "Telanx",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MaomiZanHuang/Server/issues"
+  },
+  "homepage": "https://github.com/MaomiZanHuang/Server#readme",
+  "dependencies": {
+    "egg": "^2.9.1"
+  },
+  "devDependencies": {
+    "egg-bin": "^4.7.1",
+    "egg-email": "^1.0.2",
+    "egg-sequelize": "^3.1.5",
+    "mysql2": "^1.5.3"
+  }
+}
