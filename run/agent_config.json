@@ -89,6 +89,19 @@
       "username": "root",
       "password": "<String len: 0>"
     },
+    "email": {
+      "app": true,
+      "agent": false,
+      "client": {
+        "host": "smtp.qq.com",
+        "secureConnection": true,
+        "port": 465,
+        "auth": {
+          "user": "",
+          "pass": "<String len: 0>"
+        }
+      }
+    },
     "env": "local",
     "name": "server",
     "keys": "<String len: 2>",
@@ -120,6 +133,7 @@
       },
       "devDependencies": {
         "egg-bin": "^4.7.1",
+        "egg-email": "^1.0.2",
         "egg-sequelize": "^3.1.5",
         "mysql2": "^1.5.3"
       }
@@ -365,6 +379,17 @@
       "from": "E:\\web\\zuanhuang\\Server\\config\\plugin.js",
       "path": "E:\\web\\zuanhuang\\Server\\node_modules\\egg-sequelize",
       "version": "3.1.5"
+    },
+    "email": {
+      "enable": true,
+      "package": "egg-email",
+      "name": "email",
+      "dependencies": [],
+      "optionalDependencies": [],
+      "env": [],
+      "from": "E:\\web\\zuanhuang\\Server\\config\\plugin.js",
+      "path": "E:\\web\\zuanhuang\\Server\\node_modules\\egg-email",
+      "version": "1.0.2"
     }
   }
 }

@@ -5,6 +5,30 @@
       "HEAD",
       "GET"
     ],
+    "paramNames": [
+      {
+        "name": "id",
+        "prefix": "/",
+        "delimiter": "/",
+        "optional": false,
+        "repeat": false,
+        "partial": false,
+        "asterisk": false,
+        "pattern": "[^\\/]+?"
+      }
+    ],
+    "path": "/goods/get/:id",
+    "regexp": "/^\\/goods\\/get\\/((?:[^\\/]+?))(?:\\/(?=$))?$/",
+    "stack": [
+      "wrappedController"
+    ]
+  },
+  {
+    "name": null,
+    "methods": [
+      "HEAD",
+      "GET"
+    ],
     "paramNames": [],
     "path": "/guest/goods_cata",
     "regexp": "/^\\/guest\\/goods_cata(?:\\/(?=$))?$/",
@@ -19,8 +43,20 @@
       "GET"
     ],
     "paramNames": [],
-    "path": "/guest/top5_hot_goods",
-    "regexp": "/^\\/guest\\/top5_hot_goods(?:\\/(?=$))?$/",
+    "path": "/guest/getHomePageData",
+    "regexp": "/^\\/guest\\/getHomePageData(?:\\/(?=$))?$/",
+    "stack": [
+      "wrappedController"
+    ]
+  },
+  {
+    "name": null,
+    "methods": [
+      "POST"
+    ],
+    "paramNames": [],
+    "path": "/order/create",
+    "regexp": "/^\\/order\\/create(?:\\/(?=$))?$/",
     "stack": [
       "wrappedController"
     ]
@@ -31,9 +67,44 @@
       "HEAD",
       "GET"
     ],
-    "paramNames": [],
-    "path": "/guest/latest_5notice",
-    "regexp": "/^\\/guest\\/latest_5notice(?:\\/(?=$))?$/",
+    "paramNames": [
+      {
+        "name": "id",
+        "prefix": "/",
+        "delimiter": "/",
+        "optional": false,
+        "repeat": false,
+        "partial": false,
+        "asterisk": false,
+        "pattern": "[^\\/]+?"
+      }
+    ],
+    "path": "/order/get/:id",
+    "regexp": "/^\\/order\\/get\\/((?:[^\\/]+?))(?:\\/(?=$))?$/",
+    "stack": [
+      "wrappedController"
+    ]
+  },
+  {
+    "name": null,
+    "methods": [
+      "HEAD",
+      "GET"
+    ],
+    "paramNames": [
+      {
+        "name": "id",
+        "prefix": "/",
+        "delimiter": "/",
+        "optional": false,
+        "repeat": false,
+        "partial": false,
+        "asterisk": false,
+        "pattern": "[^\\/]+?"
+      }
+    ],
+    "path": "/order/cancel/:id",
+    "regexp": "/^\\/order\\/cancel\\/((?:[^\\/]+?))(?:\\/(?=$))?$/",
     "stack": [
       "wrappedController"
     ]

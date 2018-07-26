@@ -1,14 +1,18 @@
 'use strict';
 
 module.exports = app => {
-  const { INTEGER, STRING } = app.Sequelize;
-  const GoodsCata = app.model.define('GoodsCata', {
+  const { INTEGER, STRING, JSON } = app.Sequelize;
+  const GoodsItem = app.model.define('GoodsItem', {
     id: {
       type: INTEGER,
+      auto_incement: true,
       primaryKey: true
     },
     cata_id: {
       type: INTEGER
+    },
+    goods_id: {
+      type: STRING
     },
     title: {
       type: STRING
@@ -16,20 +20,24 @@ module.exports = app => {
     logo: {
       type: STRING
     },
+    pics: {
+      type: JSON
+    },
     detail: {
       type: STRING
     },
-    online: {
+    sort_index: {
       type: INTEGER
     },
-    sort_index: {
+    online: {
       type: INTEGER
     }
   }, {
     freezeTableName: true,
-    tableName: 'goods_cata',
+    tableName: 'goods_item',
     timestamps: false
   });
+
   
-  return GoodsCata;
+  return GoodsItem;
 }
