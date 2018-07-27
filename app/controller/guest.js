@@ -31,6 +31,16 @@ class GuestController extends Controller {
     const latest_5notices = await this.service.guest.getLatest5Notices();
     const adv = await this.service.guest.getHomePageAdv();
 
+    const [group_goods_specs] = await this.service.guest.getGoodsSpecsGroupByGoodsId();
+    const goods_item_ids = top5_hot_goods.map(x => x.goods_id);
+
+    top5_hot_goods.forEach((item, idx) => {
+      // 商品规格
+      let {min_rmb, min_points, goods_id} = group_goods_specs.filter(spec => spec.goods_id == item.goods_id)[0] || {};
+      top5_hot_goods[idx].dataValues = { ...top5_hot_goods[idx].dataValues, min_points, min_rmb };
+    });
+
+
     this.ctx.body = ({
       adv,
       home_page_goods: top5_hot_goods,

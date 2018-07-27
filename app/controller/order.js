@@ -116,9 +116,34 @@ class OrderController extends Controller {
       };
     }
   }
-  // 激活订单
-  async active() {
+  
+  /**
+   * 通过积分支付订单
+   * 步骤:1.校验支付密码，2校验订单金额和积分余额是否够 3扣积分，刷单，调整订单状态
+   */
+  async payByPoints() {
+    const {pay_pwd, order_id} = this.ctx.request.body;
+    const user = 'telanx';
+    const isPayPwdMatch = await this.service.user.checkPayPwd(user, pay_pwd);
+    if (!isPayPwdMatch) {
+      return this.ctx.body = {
+        status: 0,
+        msg: '支付密码错误！'
+      };
+    }
+    
+    const checkAndPay = await this.service.order.checkAndPay(order_id, user);
+    if (!checkAndPay.status) {
+      return this.ctx.body = {
+        status: 0,
+        msg: checkAndPay.msg
+      };
+    }
 
+    this.ctx.body = {
+      status: 1,
+      msg: '付款成功，服务器正在加速为您刷单！'
+    };
   }
   // 发货自己找一个发货的英文看下即可
 }
