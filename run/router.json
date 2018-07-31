@@ -55,6 +55,18 @@
       "POST"
     ],
     "paramNames": [],
+    "path": "/guest/getOrder",
+    "regexp": "/^\\/guest\\/getOrder(?:\\/(?=$))?$/",
+    "stack": [
+      "wrappedController"
+    ]
+  },
+  {
+    "name": null,
+    "methods": [
+      "POST"
+    ],
+    "paramNames": [],
     "path": "/order/create",
     "regexp": "/^\\/order\\/create(?:\\/(?=$))?$/",
     "stack": [
@@ -128,6 +140,91 @@
     ],
     "path": "/order/payByPoints/:id",
     "regexp": "/^\\/order\\/payByPoints\\/((?:[^\\/]+?))(?:\\/(?=$))?$/",
+    "stack": [
+      "wrappedController"
+    ]
+  },
+  {
+    "name": null,
+    "methods": [
+      "HEAD",
+      "GET"
+    ],
+    "paramNames": [],
+    "path": "/user/info",
+    "regexp": "/^\\/user\\/info(?:\\/(?=$))?$/",
+    "stack": [
+      "wrappedController"
+    ]
+  },
+  {
+    "name": null,
+    "methods": [
+      "POST"
+    ],
+    "paramNames": [],
+    "path": "/user/update_info",
+    "regexp": "/^\\/user\\/update_info(?:\\/(?=$))?$/",
+    "stack": [
+      "wrappedController"
+    ]
+  },
+  {
+    "name": null,
+    "methods": [
+      "POST"
+    ],
+    "paramNames": [],
+    "path": "/user/login",
+    "regexp": "/^\\/user\\/login(?:\\/(?=$))?$/",
+    "stack": [
+      "wrappedController"
+    ]
+  },
+  {
+    "name": null,
+    "methods": [
+      "POST"
+    ],
+    "paramNames": [],
+    "path": "/user/reg",
+    "regexp": "/^\\/user\\/reg(?:\\/(?=$))?$/",
+    "stack": [
+      "wrappedController"
+    ]
+  },
+  {
+    "name": null,
+    "methods": [
+      "POST"
+    ],
+    "paramNames": [],
+    "path": "/user/update_loginpwd",
+    "regexp": "/^\\/user\\/update_loginpwd(?:\\/(?=$))?$/",
+    "stack": [
+      "wrappedController"
+    ]
+  },
+  {
+    "name": null,
+    "methods": [
+      "POST"
+    ],
+    "paramNames": [],
+    "path": "/user/update_paypwd",
+    "regexp": "/^\\/user\\/update_paypwd(?:\\/(?=$))?$/",
+    "stack": [
+      "wrappedController"
+    ]
+  },
+  {
+    "name": null,
+    "methods": [
+      "POST"
+    ],
+    "paramNames": [],
+    "path": "/user/feedback",
+    "regexp": "/^\\/user\\/feedback(?:\\/(?=$))?$/",
     "stack": [
       "wrappedController"
     ]

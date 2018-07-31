@@ -1,3 +1,7 @@
+const JWT = require('jwt-simple');
+
+const SECRET_KEY = 'zanhuang';
+
 // 数字补0
 const fillNum = n => n > 9
   ? n + ''
@@ -12,7 +16,19 @@ const getUid = () => {
   return year + month + day + '_' + ((+d) + '').slice(-8);
 }
 
+// 创建加密的jwt数据
+const createJWT = (user, role, expire) => {
+  return JWT.encode({user, role, expire}, SECRET_KEY);
+};
+
+// 解密jwt数据返回
+const parseJWT = sign => {
+  return JWT.decode(sign, SECRET_KEY);
+};
+
 module.exports = {
   fillNum,
-  getUid
+  getUid,
+  createJWT,
+  parseJWT
 };

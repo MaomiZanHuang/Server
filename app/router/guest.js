@@ -6,4 +6,6 @@ module.exports = ({router, controller}) => {
   router.get('/guest/goods_cata', controller.guest.getGoodsCata);
   /** 获取首页其它数据，不包括分类 */
   router.get('/guest/getHomePageData', controller.guest.getHomePageData);
+  
+  router.post('/guest/getOrder', controller.order.getOrderByVisitor);
 };

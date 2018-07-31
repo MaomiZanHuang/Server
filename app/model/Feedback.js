@@ -1,7 +1,7 @@
 'use strict';
 module.exports = app => {
   const { INTEGER, STRING } = app.Sequelize;
-  const User = app.model.define('User', {
+  const Feedback = app.model.define('Feedback', {
     id: {
       type: INTEGER,
       primaryKey: true
@@ -9,29 +9,17 @@ module.exports = app => {
     user: {
       type: STRING
     },
-    qq: {
+    content: {
       type: STRING
     },
-    mobile: {
-      type: STRING
-    },
-    email: {
-      type: STRING
-    },
-    login_pwd: {
-      type: STRING
-    },
-    pay_pwd: {
-      type: STRING
-    },
-    reg_time: {
+    create_time: {
       type: STRING
     }
     
   }, {
     freezeTableName: true,
-    tableName: 'user_user',
+    tableName: 'feedback',
     timestamps: false
   });
-  return User;
+  return Feedback;
 }

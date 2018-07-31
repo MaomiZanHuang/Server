@@ -3,6 +3,7 @@
 const moment = require('moment');
 
 const {Service} = require('egg');
+const request = require('request-promise');
 
 class OrderService extends Service {
   async create(data) {
@@ -11,6 +12,21 @@ class OrderService extends Service {
   }
   async getOne(id) {
     return await this.app.model.Order.findOne({ where: { order_id: id } });
+  }
+
+  // 访客模式下订单查询接口
+  async getOrderByVisitor(keywords) {
+    const {where, col} = this.app.model;
+    const res = await this.app.model.Order.findAll({
+      where: {
+        $or: [
+          where(col('user'), { $like: keywords }),
+          where(col('order_id'), { $like: keywords }),
+          where(col('concat'), { $like: keywords })
+        ]
+      }
+    });
+    return res;
   }
   
   // 检查用户和订单积分余额是否足够，足够就直接扣除，不足够不扣除
@@ -104,8 +120,28 @@ class OrderService extends Service {
   }
 
   // 调用接口发货
-  async invokeAPI(type) {
+  async invokeAPI(host, comm_goods_id, comm_goods_type, other_params) {
     // 根据分类调用不同接口，固定写死就行，暂时不需要配置在数据库里
+    // const HOST = 'http://1gege.ssgnb.95jw.cn';
+    const API = `${host}/index.php?m=home&c=order&a=add`;
+    const base_params = {
+      Api_UserName: 'maomi1996',
+      Api_UserMd5Pass: 'f06b6fdd1bd7dee3fc5ec0f09760f561',
+      goods_id: comm_goods_id,
+      goods_type: comm_goods_type,
+      pay_type: 0
+    };
+
+    const params = Object.assign(base_params, other_params);
+
+    try {
+      console.log('--------------------Request-----------------');
+      const res = await request.post(API, { form: params });
+      console.log(res);
+    } catch(err) {
+      console.log(err);
+    }
+    return false;
   }
 }
 

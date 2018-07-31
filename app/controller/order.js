@@ -91,6 +91,19 @@ class OrderController extends Controller {
       this.ctx.body = err;
     }
   }
+
+  // 游客模式下查询订单
+  async getOrderByVisitor() {
+    const {keywords} = this.ctx.request.body;
+    if (keywords.trim() === '') {
+      return this.ctx.body = {
+        status: 0,
+        msg: '请先输入QQ/邮箱/订单后再查询！'
+      };
+    }
+    const res = await this.service.order.getOrderByVisitor(keywords);
+    return this.ctx.body = res;
+  }
   /**
    取消订单
    注意校验是不是本人产生的订单，如果不是，则无法取消
