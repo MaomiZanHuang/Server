@@ -21,7 +21,7 @@ module.exports = app => {
       type: STRING
     },
     pics: {
-      type: JSON
+      type: STRING
     },
     detail: {
       type: STRING
