@@ -1,11 +1,11 @@
 module.exports = {
   client: {
-    host: 'smtp.qq.com',
+    host: 'smtp.gmail.com',
     secureConnection: true,
     port: 465,
     auth: {
-      user: '',
-      pass: ''
+      user: '1993yml@gmail.com',
+      pass: '027telanx135'
     }
   }
 };

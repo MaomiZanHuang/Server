@@ -16,8 +16,11 @@ module.exports = app => {
     change_amt: {
       type: FLOAT
     },
+    before_balance: {
+      type: FLOAT
+    },
     balance: {
-      type: STRING
+      type: FLOAT
     },
     time: {
       type: STRING

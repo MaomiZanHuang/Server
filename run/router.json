@@ -5,6 +5,19 @@
       "HEAD",
       "GET"
     ],
+    "paramNames": [],
+    "path": "/card/query",
+    "regexp": "/^\\/card\\/query(?:\\/(?=$))?$/",
+    "stack": [
+      "wrappedController"
+    ]
+  },
+  {
+    "name": null,
+    "methods": [
+      "HEAD",
+      "GET"
+    ],
     "paramNames": [
       {
         "name": "id",
@@ -141,6 +154,43 @@
     "path": "/order/payByPoints/:id",
     "regexp": "/^\\/order\\/payByPoints\\/((?:[^\\/]+?))(?:\\/(?=$))?$/",
     "stack": [
+      "E:\\web\\zuanhuang\\Server\\app\\middleware\\jwt.js",
+      "wrappedController"
+    ]
+  },
+  {
+    "name": null,
+    "methods": [
+      "POST"
+    ],
+    "paramNames": [],
+    "path": "/pay/getCardOrder",
+    "regexp": "/^\\/pay\\/getCardOrder(?:\\/(?=$))?$/",
+    "stack": [
+      "wrappedController"
+    ]
+  },
+  {
+    "name": null,
+    "methods": [
+      "HEAD",
+      "GET"
+    ],
+    "paramNames": [
+      {
+        "name": "id",
+        "prefix": "/",
+        "delimiter": "/",
+        "optional": false,
+        "repeat": false,
+        "partial": false,
+        "asterisk": false,
+        "pattern": "[^\\/]+?"
+      }
+    ],
+    "path": "/pay/:id",
+    "regexp": "/^\\/pay\\/((?:[^\\/]+?))(?:\\/(?=$))?$/",
+    "stack": [
       "wrappedController"
     ]
   },
@@ -154,6 +204,7 @@
     "path": "/user/info",
     "regexp": "/^\\/user\\/info(?:\\/(?=$))?$/",
     "stack": [
+      "anonymous",
       "wrappedController"
     ]
   },
@@ -166,6 +217,7 @@
     "path": "/user/update_info",
     "regexp": "/^\\/user\\/update_info(?:\\/(?=$))?$/",
     "stack": [
+      "anonymous",
       "wrappedController"
     ]
   },
@@ -202,6 +254,7 @@
     "path": "/user/update_loginpwd",
     "regexp": "/^\\/user\\/update_loginpwd(?:\\/(?=$))?$/",
     "stack": [
+      "anonymous",
       "wrappedController"
     ]
   },
@@ -214,6 +267,7 @@
     "path": "/user/update_paypwd",
     "regexp": "/^\\/user\\/update_paypwd(?:\\/(?=$))?$/",
     "stack": [
+      "anonymous",
       "wrappedController"
     ]
   },
@@ -226,6 +280,34 @@
     "path": "/user/feedback",
     "regexp": "/^\\/user\\/feedback(?:\\/(?=$))?$/",
     "stack": [
+      "anonymous",
+      "wrappedController"
+    ]
+  },
+  {
+    "name": null,
+    "methods": [
+      "HEAD",
+      "GET"
+    ],
+    "paramNames": [],
+    "path": "/user/checkin",
+    "regexp": "/^\\/user\\/checkin(?:\\/(?=$))?$/",
+    "stack": [
+      "anonymous",
+      "wrappedController"
+    ]
+  },
+  {
+    "name": null,
+    "methods": [
+      "POST"
+    ],
+    "paramNames": [],
+    "path": "/user/chargeByCard",
+    "regexp": "/^\\/user\\/chargeByCard(?:\\/(?=$))?$/",
+    "stack": [
+      "anonymous",
       "wrappedController"
     ]
   },

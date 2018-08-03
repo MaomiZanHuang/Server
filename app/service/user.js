@@ -1,4 +1,5 @@
 const {Service} = require('egg');
+const moment = require('moment');
 
 class UserService extends Service {
   // 检查登录密码是否匹配
@@ -24,6 +25,13 @@ class UserService extends Service {
 
   // 添加新账户
   async reg(user, login_pwd, qq) {
+    // 创建初始余额账户
+    this.app.model.UserBalance.create({
+      user,
+      balance: 0,
+      points: 0,
+      remark: '新开户'
+    });
     return await this.app.model.User.create({
       user,
       login_pwd,

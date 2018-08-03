@@ -7,7 +7,7 @@ class OrderController extends Controller {
   async create() {
     // 商品的价格和规格存入到订单表中
     const { goods_id, spec_id, amt, concat, remark } = this.ctx.request.body;
-    const user = 'telanx';
+    const user = this.ctx.user.user;
     // 查找商品和规格
     const goods = await this.app.model.GoodsItem.findOne({
       where: { goods_id }
@@ -136,7 +136,7 @@ class OrderController extends Controller {
    */
   async payByPoints() {
     const {pay_pwd, order_id} = this.ctx.request.body;
-    const user = 'telanx';
+    const user = this.ctx.user.user;
     const isPayPwdMatch = await this.service.user.checkPayPwd(user, pay_pwd);
     if (!isPayPwdMatch) {
       return this.ctx.body = {

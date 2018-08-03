@@ -89,6 +89,7 @@ class OrderService extends Service {
       user,
       type: 'points',
       change_amt: total_fee,
+      before_balance: user_balance.points,
       balance,
       time: pay_time,
       remark: '购买商品' 

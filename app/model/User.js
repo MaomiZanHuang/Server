@@ -24,6 +24,9 @@ module.exports = app => {
     pay_pwd: {
       type: STRING
     },
+    last_checkin_time: {
+      type: STRING
+    },
     reg_time: {
       type: STRING
     }

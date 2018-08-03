@@ -1,6 +1,7 @@
 const {Controller} = require('egg');
 const {createJWT} = require('../utils/index.js');
 const moment = require('moment');
+const _ = require('lodash/object');
 
 // 认证信息采用无状态的JWT
 class UserController extends Controller {
@@ -108,21 +109,6 @@ class UserController extends Controller {
 
   }
 
-  // 更新资料
-  async update() {
-
-  }
-
-  // 更新登录密码
-  async changePwd() {
-
-  }
-
-  // 更新支付密码
-  async changePayPwd() {
-
-  }
-
   // 提交用户反馈信息
   async feedback() {
     const feedback = this.ctx.request.body.content || '';
@@ -132,7 +118,7 @@ class UserController extends Controller {
         msg: '内容无效或过长，提交失败！'
       };
     }
-    const user = 'telanx';
+    const user = this.ctx.user.user;
     this.app.model.Feedback.create({
       user,
       content: feedback,
@@ -146,16 +132,15 @@ class UserController extends Controller {
 
   // 获取用户基本信息
   async getUserInfo() {
-    const user = 'telanx';
+    const user = this.ctx.user.user;
     const userInfo = await this.app.model.User.findOne({
-      where: {user},
-      fields: ['qq', 'email', 'mobile', 'create_time']
+      where: {user}
     })
-    return this.ctx.body = userInfo;
+    return this.ctx.body = _.pick(userInfo, ['email', 'qq', 'reg_time', 'mobile']);
   }
   // 更新用户基本信息
   async updateInfo() {
-    const user = 'telanx';
+    const user = this.ctx.user.user;
     const {qq, email, mobile} = this.ctx.request.body;
     const qqRegExp = /^\d{4,10}$/;
     const emailRegExp = /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/;
@@ -199,7 +184,7 @@ class UserController extends Controller {
 
   async updateLoginPwd() {
     const {pwd0, pwd1, pwd2} = this.ctx.request.body;
-    const user = 'telanx';
+    const user = this.ctx.user.user;
     if (pwd1 !== pwd2) {
       return this.ctx.body = {
         status: 0,
@@ -239,7 +224,7 @@ class UserController extends Controller {
 
   async updatePayPwd() {
     const {pwd0, pwd2} = this.ctx.request.body;
-    const user = 'telanx';
+    const user = this.ctx.user.user;
     
     if (pwd0.trim() === '' || pwd2.trim() === '') {
       return this.ctx.body = {
@@ -270,6 +255,108 @@ class UserController extends Controller {
       status: 1,
       msg: '更新成功！'
     }
+  }
+
+  // 签到送积分
+  async checkin() {
+    // 每天签到积分+1
+    const EXTRA_POINTS = 1;
+    const user = this.ctx.user.user;
+    // 每天只能签到一次
+    const matchUser = await this.app.model.User.findOne({
+      where: {user}
+    });
+    if (matchUser.last_checkin_time
+      && moment(matchUser.last_checkin_time).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD')) {
+        return this.ctx.body = {
+          status: 0,
+          msg: '您当日已签到了！'
+        }
+      }
+
+    // 记录上次签到时间
+    this.app.model.User.update({
+      last_checkin_time: moment().format('YYYY-MM-DD HH:mm:ss')
+    }, { where: {user}});
+    
+    // 积分加1并记录到balance_changelog表
+    const user_balance = await this.app.model.UserBalance.findOne({
+      where: { user }
+    });
+
+    if (!user_balance) {
+      return this.ctx.body = {
+        status: 0,
+        points: 0,
+        msg: '签到失败！账户异常！'
+      };
+    }
+
+    this.app.model.UserBalance.update({
+      points: user_balance.points + EXTRA_POINTS
+    }, { where: {user}});
+    this.app.model.BalanceChangelog.create({
+      user,
+      type: 'points',
+      change_amt: EXTRA_POINTS,
+      before_balance: user_balance.points,
+      balance: user_balance.points + EXTRA_POINTS,
+      time: moment().format('YYYY-MM-DD HH:mm:ss'),
+      remark: '签到积分+' + EXTRA_POINTS 
+    });
+
+    return this.ctx.body = {
+      status: 1,
+      msg: '签到成功！积分+' + EXTRA_POINTS,
+      points: user_balance.points + EXTRA_POINTS
+    };
+  }
+
+
+  // 卡密充值
+  async chargeByCard() {
+    const {card} = this.ctx.request.body;
+    const user = this.ctx.user.user;
+    // 查询卡密是否正确且未被绑定
+    const matchCard = await this.app.model.Card.findOne({
+      where: {
+        card_no: card,
+        charge_user: null,
+        activate_time: null
+      }
+    });
+
+    if (!matchCard) {
+      return this.ctx.body = {
+        status: 0,
+        msg: '无效的卡密'
+      }
+    }
+
+    const matchUser = await this.app.model.User.findOne({
+      where: {user}
+    });
+
+    if (!matchUser) {
+      return this.ctx.body = {
+        status: 0,
+        msg: '账户异常，充值失败！'
+      }
+    }
+
+    const {price, points} = matchCard;
+    const chargeResult = await this.service.balance.chargePoints(user, points, '卡密' + price + '充值积分' + points);
+    if (chargeResult.status) {
+      // 充值之后更改卡密状态
+      this.app.model.Card.update({
+        charge_user: user,
+        activate_time: moment().format('YYYY-MM-DD HH:mm:ss')
+      }, {
+        where: {card_no: card}
+      });
+    }
+
+    return this.ctx.body = chargeResult;
   }
 }
 
