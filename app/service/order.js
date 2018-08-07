@@ -1,6 +1,7 @@
 // 生成订单规则
 // uid_yyyyMMdd_时间戳后8位一定是唯一的
 const moment = require('moment');
+const {getApiParamsAlias} = require('../utils/index');
 
 const {Service} = require('egg');
 const request = require('request-promise');
@@ -8,7 +9,7 @@ const request = require('request-promise');
 class OrderService extends Service {
   async create(data) {
     const Order = this.app.model.Order;
-    return Order.create(data);
+    return await Order.create(data);
   }
   async getOne(id) {
     return await this.app.model.Order.findOne({ where: { order_id: id } });
@@ -60,11 +61,65 @@ class OrderService extends Service {
     }
 
     // 调用刷单接口进行刷单，刷单成功就扣除积分
-    const result = await this.invokeAPI();
-    if (!result) {
+    const order_goods = await this.app.model.GoodsItem.findOne({
+      where: {
+        goods_id: order.goods_id,
+        online: 1
+      }
+    });
+    if (!order_goods) {
       return {
         status: 0,
-        msg: '服务器繁忙！刷单失败！'
+        msg: '商品已下架，无法刷单！'
+      }
+    }
+
+
+    var {api_method, api_host, api_fixed_params, api_extra_params} = order_goods;
+    var concat;
+    try {
+      api_extra_params = JSON.parse(api_extra_params);
+      api_fixed_params = JSON.parse(api_fixed_params)
+      concat = JSON.parse(order.concat);
+    } catch(err) {
+      console.log(err);
+      return {
+        status: 0,
+        msg: '无效的订单:JSON解析错误！'
+      }
+    }
+    concat = Object.assign({
+      amt: order.amt * order.spec_amt,
+      // 针对卡商网的订单号SerialNumber
+      order_id,
+      // 针对卡商网的签名
+      sign: 1
+    }, concat);
+
+    // 字段里值就是别名
+    Object.keys(api_extra_params).forEach(key => {
+      api_extra_params[key] = concat[api_extra_params[key]];
+    });
+
+    var params = Object.assign(api_fixed_params, api_extra_params);
+    if (params.Sign) {
+      var crypto=require('crypto');
+      var md5=crypto.createHash("md5");
+      var signKeys = ['SerialNumber', 'CustomerID', 'ProductID', 'TargetAccount', 'BuyAmount', 'key'];
+      md5.update(signKeys.map(k => params[k]).join(''));
+      params.Sign = md5.digest('hex');
+    }
+    var result;
+    try {
+      result = await this.invokeAPI(api_method || 'GET', api_host, params);
+    } catch(err) {
+      console.log(err);
+    }
+    console.log(result);
+    if (!result.status) {
+      return {
+        status: 0,
+        msg: '下单失败:' + result.msg
       }
     }
 
@@ -121,28 +176,54 @@ class OrderService extends Service {
   }
 
   // 调用接口发货
-  async invokeAPI(host, comm_goods_id, comm_goods_type, other_params) {
-    // 根据分类调用不同接口，固定写死就行，暂时不需要配置在数据库里
-    // const HOST = 'http://1gege.ssgnb.95jw.cn';
-    const API = `${host}/index.php?m=home&c=order&a=add`;
-    const base_params = {
-      Api_UserName: 'maomi1996',
-      Api_UserMd5Pass: 'f06b6fdd1bd7dee3fc5ec0f09760f561',
-      goods_id: comm_goods_id,
-      goods_type: comm_goods_type,
-      pay_type: 0
-    };
-
-    const params = Object.assign(base_params, other_params);
-
+  async invokeAPI(method, host, params) {
+    method = method.toLowerCase();
+    if (['get', 'post', 'put', 'delete', 'options'].indexOf(method) < 0) {
+      return {
+        status: 0,
+        msg: '请求方式不正确'
+      };
+    }
     try {
-      console.log('--------------------Request-----------------');
-      const res = await request.post(API, { form: params });
-      console.log(res);
+      var res = await request[method](host, { form: params });
+      if (params.Sign) {
+        res = JSON.parse(res);
+        if (res && res.Success) {
+          return {
+            status: 1,
+            msg: res.Info,
+            OrderId: res.OrderId
+          };
+        } else {
+          return {
+            status: 0,
+            msg: res.Info
+          }
+        }
+      } else {
+        if (res && res.status) {
+          return {
+            status: 1,
+            msg: res.info
+          };
+        } else {
+          // 下单失败，获取失败信息
+          var error_node = res.match(/<p class="error">(\S+)?<\/p>/);
+          var err = error_node && error_node[1];
+          if (error_node)
+          return {
+            status: 0,
+            msg: err
+          };
+        }
+      }
     } catch(err) {
       console.log(err);
+      return {
+        status: 0,
+        err: '系统出错了！'
+      };
     }
-    return false;
   }
 }
 

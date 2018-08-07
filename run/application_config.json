@@ -139,6 +139,8 @@
       "main": "index.js",
       "scripts": {
         "dev": "egg-bin dev",
+        "start": "egg-scripts start --daemon",
+        "stop": "egg-scripts stop",
         "test": "echo \"Error: no test specified\" && exit 1"
       },
       "repository": {

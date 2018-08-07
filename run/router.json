@@ -83,6 +83,7 @@
     "path": "/order/create",
     "regexp": "/^\\/order\\/create(?:\\/(?=$))?$/",
     "stack": [
+      "anonymous",
       "wrappedController"
     ]
   },
@@ -131,6 +132,7 @@
     "path": "/order/cancel/:id",
     "regexp": "/^\\/order\\/cancel\\/((?:[^\\/]+?))(?:\\/(?=$))?$/",
     "stack": [
+      "anonymous",
       "wrappedController"
     ]
   },
@@ -154,7 +156,7 @@
     "path": "/order/payByPoints/:id",
     "regexp": "/^\\/order\\/payByPoints\\/((?:[^\\/]+?))(?:\\/(?=$))?$/",
     "stack": [
-      "E:\\web\\zuanhuang\\Server\\app\\middleware\\jwt.js",
+      "anonymous",
       "wrappedController"
     ]
   },

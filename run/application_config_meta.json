@@ -113,6 +113,8 @@
     "main": "E:\\web\\zuanhuang\\Server\\node_modules\\egg\\config\\config.default.js",
     "scripts": {
       "dev": "E:\\web\\zuanhuang\\Server\\node_modules\\egg\\config\\config.default.js",
+      "start": "E:\\web\\zuanhuang\\Server\\node_modules\\egg\\config\\config.default.js",
+      "stop": "E:\\web\\zuanhuang\\Server\\node_modules\\egg\\config\\config.default.js",
       "test": "E:\\web\\zuanhuang\\Server\\node_modules\\egg\\config\\config.default.js"
     },
     "repository": {

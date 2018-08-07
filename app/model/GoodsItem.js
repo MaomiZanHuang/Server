@@ -31,6 +31,22 @@ module.exports = app => {
     },
     online: {
       type: INTEGER
+    },
+    api_extra_params: {
+      type: INTEGER
+    },
+    api_fixed_params: {
+      type: STRING
+    },
+    api_host: {
+      type: STRING
+    },
+    api_method: {
+      type: STRING
+    },
+    // 分为QQ, QQ_SHUO, KS, KS_GQ...根据前端的所有分类来
+    business_cata: {
+      type: STRING 
     }
   }, {
     freezeTableName: true,

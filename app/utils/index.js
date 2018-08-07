@@ -26,9 +26,20 @@ const parseJWT = sign => {
   return JWT.decode(sign, SECRET_KEY);
 };
 
+// 获取所有接口参数映射表
+const getApiParamsAlias = () => {
+  const alias = {
+    qq: 'qq',
+    need_num_0: 'amt',
+    ksid: 'ksid'
+  };
+  return alias;
+};
+
 module.exports = {
   fillNum,
   getUid,
   createJWT,
-  parseJWT
+  parseJWT,
+  getApiParamsAlias
 };

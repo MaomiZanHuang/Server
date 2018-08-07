@@ -1,6 +1,7 @@
 const {Controller} = require('egg');
 const {getUid} = require('../utils/index.js');
 const moment = require('moment');
+const _ = require('lodash/object');
 
 class GoodsController extends Controller {
   // 查询商品
@@ -8,8 +9,9 @@ class GoodsController extends Controller {
     const goods_id = this.ctx.params.id;
     try {
       const goods = await this.service.goods.getOne(goods_id);
-
-      this.ctx.body = goods || {};
+      // 过滤到账号密码等关键信息
+      goods.dataValues = _.omit(goods.dataValues, ['api_host', 'api_method', 'api_fixed_params']);
+      this.ctx.body = goods;
     } catch(err) {
       this.ctx.body = err;
     }

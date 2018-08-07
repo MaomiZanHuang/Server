@@ -8,7 +8,6 @@ module.exports = () => {
         const user = parseJWT(token);
         ctx.user = user;
       } catch(err) {
-        console.log(err);
         ctx.status = 403;
         ctx.body = {
           status: 0,

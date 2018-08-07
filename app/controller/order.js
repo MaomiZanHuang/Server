@@ -30,6 +30,7 @@ class OrderController extends Controller {
         msg: '系统出错了！'
       };
     }
+
     try {
       const r = await this.service.order.create({
         id: null,
@@ -39,7 +40,7 @@ class OrderController extends Controller {
         // 下单人id
         user,
         // 规格
-        spec_id,
+        spec_amt: spec.amt,
         spec: spec.title,
         // 价格
         price,
@@ -112,12 +113,13 @@ class OrderController extends Controller {
   async cancel() {
     // 注意验证用户的Id和订单关联性
     const order_id = this.ctx.params.id;
+    const user = this.ctx.user.user;
 
     try {
       const r = await this.app.model.Order.update({
         status: 0
       }, {
-        where: { order_id }
+        where: { order_id, user }
       });
       this.ctx.body = r[0]
         ? { status: 1, msg: '已成功取消订单' }

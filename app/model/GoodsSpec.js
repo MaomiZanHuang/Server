@@ -11,6 +11,9 @@ module.exports = app => {
     goods_id: {
       type: STRING
     },
+    amt: {
+      type: INTEGER
+    },
     title: {
       type: STRING
     },

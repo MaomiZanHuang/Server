@@ -24,6 +24,10 @@ module.exports = app => {
     user: {
       type: STRING
     },
+    // 规格数量
+    spec_amt: {
+      type: INTEGER
+    },
     // 规格
     spec: {
       type: STRING
