@@ -20,6 +20,9 @@ module.exports = app => {
     goods_name: {
       type: STRING
     },
+    goods_logo: {
+      type: STRING
+    },
     // 下单人id
     user: {
       type: STRING

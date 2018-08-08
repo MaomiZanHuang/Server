@@ -61,6 +61,7 @@ class OrderController extends Controller {
         order_id: getUid(),
         goods_id,
         goods_name,
+        goods_logo: goods.logo,
         // 下单人id
         user,
         // 规格
@@ -178,6 +179,8 @@ class OrderController extends Controller {
         msg: checkAndPay.msg
       };
     }
+    // 下单成功之后更新订单状态
+
 
     this.ctx.body = {
       status: 1,
