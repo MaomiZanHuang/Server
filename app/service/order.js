@@ -1,7 +1,6 @@
 // 生成订单规则
 // uid_yyyyMMdd_时间戳后8位一定是唯一的
 const moment = require('moment');
-const {getApiParamsAlias} = require('../utils/index');
 
 const {Service} = require('egg');
 const request = require('request-promise');
@@ -25,7 +24,8 @@ class OrderService extends Service {
           where(col('order_id'), { $like: keywords }),
           where(col('concat'), { $like: keywords })
         ]
-      }
+      },
+      limit: 3
     });
     return res;
   }
@@ -39,10 +39,10 @@ class OrderService extends Service {
       }
     });
 
-    if (!order) {
+    if (!order ||  order.status !== 1) {
       return {
         status: 0,
-        msg: '无效订单！'
+        msg: '无效订单或订单状态不正确！'
       }
     }
 
@@ -111,11 +111,11 @@ class OrderService extends Service {
     }
     var result;
     try {
+      console.log(api_host, params);
       result = await this.invokeAPI(api_method || 'GET', api_host, params);
     } catch(err) {
       console.log(err);
     }
-    console.log(result);
     if (!result.status) {
       return {
         status: 0,
@@ -156,7 +156,7 @@ class OrderService extends Service {
     return {
       status: 1,
       msg: '扣款成功！'
-    }
+    };
   }
 
   // 发货处理
@@ -165,6 +165,7 @@ class OrderService extends Service {
       pay_way,
       total_fee,
       pay_fee,
+      status: 3,
       pay_time:  moment().format('YYYY-MM-DD HH:mm:ss'),
       operator,
       operation_time: moment().format('YYYY-MM-DD HH:mm:ss')

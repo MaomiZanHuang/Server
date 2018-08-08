@@ -3,6 +3,30 @@ const {getUid} = require('../utils/index.js');
 const moment = require('moment');
 
 class OrderController extends Controller {
+  // 分页查询用户订单
+  async getUserOrder() {
+    const PAGE_SIZE = 10;
+    let user = this.ctx.user.user;
+    let {filter, page, page_size} = this.ctx.request.body;
+    let order_status = filter === 'success'
+      ? { $in: [3] }
+      : { $notIn: [3] };
+    if (!page_size || page_size && page_size > PAGE_SIZE) {
+      page_size = PAGE_SIZE
+    }
+    const result = await this.app.model.Order.findAll({
+      where: {
+        user,
+        status: order_status
+      },
+      limit: page_size,
+      offset: page_size * page,
+      'order': [
+        ['create_time', 'DESC']
+      ]
+    });
+    return this.ctx.body = result;
+  }
   // 创建订单
   async create() {
     // 商品的价格和规格存入到订单表中
