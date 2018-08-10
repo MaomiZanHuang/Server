@@ -7,14 +7,14 @@ const _ = require('lodash/object');
 class UserController extends Controller {
   async login() {
     const {user, pwd} = this.ctx.request.body;
-    const checkPwd = await this.service.user.checkLoginPwd(user, pwd);
+    const matchUser = await this.service.user.checkLoginPwd(user, pwd);
     if (this.ctx.session.tryLogin > 10) {
       return this.ctx.body = {
         status: 0,
         msg: '错误次数超限，请稍后重试！'
       };
     }
-    if (!checkPwd) {
+    if (!matchUser) {
       this.ctx.session.tryLogin  = (this.ctx.session.tryLogin || 0) + 1;
       return this.ctx.body = {
         status: 0,
@@ -30,6 +30,7 @@ class UserController extends Controller {
     });
 
     // 登录成功返回加密的jwt,有效期30天
+    const {qq} = matchUser;
     const points = getPoints.points || 0;
     const role = 'user_user';
     const expire = moment().add('days', 30).valueOf();
@@ -39,6 +40,7 @@ class UserController extends Controller {
       msg: '登录成功',
       user: {
         user,
+        qq,
         points,
         expire,
         role
@@ -96,6 +98,7 @@ class UserController extends Controller {
       msg: '注册成功！',
       user: {
         user,
+        qq,
         points,
         role,
         expire

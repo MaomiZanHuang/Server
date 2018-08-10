@@ -10,7 +10,7 @@ class UserService extends Service {
         login_pwd: pwd
       }
     });
-    return !!macthUser;
+    return macthUser;
   }
 
   // 注册时检查用户名是否存在
