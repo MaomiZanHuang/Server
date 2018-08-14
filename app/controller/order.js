@@ -31,6 +31,18 @@ class OrderController extends Controller {
   async create() {
     // 商品的价格和规格存入到订单表中
     const { goods_id, spec_id, amt, concat, remark } = this.ctx.request.body;
+    try {
+      if (!/^\d{1,2}$/.test(amt) && amt > 0) {
+        throw new Error('Error: Invalid amt');
+      }
+      
+      JSON.parse(concat);
+    } catch(err) {
+      return this.ctx.body = {
+        status: 0,
+        msg: '请求数据不正确！'
+      };
+    }
     const user = this.ctx.user.user;
     // 查找商品和规格
     const goods = await this.app.model.GoodsItem.findOne({

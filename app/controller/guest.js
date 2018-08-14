@@ -1,4 +1,6 @@
 const Controller = require('egg').Controller;
+const _ = require('lodash/object');
+const request = require('request-promise');
 
 class GuestController extends Controller {
   // 获取商品分类数据
@@ -18,7 +20,7 @@ class GuestController extends Controller {
       // 商品规格
       let {min_rmb, min_points, goods_id} = group_goods_specs.filter(spec => spec.goods_id == item.goods_id)[0] || {};
       if (idx + 1) {
-        goods_cata[idx].dataValues.children.push(Object.assign(item.dataValues,
+        goods_cata[idx].dataValues.children.push(Object.assign(_.omit(item.dataValues, ['api_host', 'api_method', 'api_fixed_params', 'api_extra_params']),
           { min_points: min_points, min_price: min_rmb, specs:  '' } ));
       }
     });
@@ -37,7 +39,7 @@ class GuestController extends Controller {
     top5_hot_goods.forEach((item, idx) => {
       // 商品规格
       let {min_rmb, min_points, goods_id} = group_goods_specs.filter(spec => spec.goods_id == item.goods_id)[0] || {};
-      top5_hot_goods[idx].dataValues = { ...top5_hot_goods[idx].dataValues, min_points, min_rmb };
+      top5_hot_goods[idx].dataValues = { ..._.omit(item.dataValues, ['api_host', 'api_method', 'api_fixed_params', 'api_extra_params']), min_points, min_rmb };
     });
 
 
@@ -46,6 +48,36 @@ class GuestController extends Controller {
       home_page_goods: top5_hot_goods,
       notices: latest_5notices
     });
+  }
+
+  // 获取说说
+  async getShuoshuo() {
+    var {qq, page} = this.ctx.query;
+    if (!(/^\d{5,10}$/.test(qq))) {
+      return this.ctx.body = {
+        status: 0,
+        msg: 'qq号不正确！'
+      }
+    }
+    if (isNaN(page)) {
+      page = 0
+    }
+    const API = 'http://www.tzytlc.com/ajax.php?act=getshuoshuo&uin=' + qq + '&page=' + page + '&hashalt=' +new Date;
+    try {
+      const res = await request.get({url: API, json: true});
+      res.status = res.code === 0 ? 1 : 0;
+      if (res && res.data) {
+        var data = res.data.map(r => _.pick(r, ['tid', 'content']));
+        res.data = data;
+      }
+      return this.ctx.body = res;
+    } catch(err) {
+      console.log(err);
+      return this.ctx.body = {
+        status: 0,
+        msg: '系统获取说说失败，请联系客服！'
+      }
+    }
   }
   
   

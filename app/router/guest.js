@@ -8,4 +8,6 @@ module.exports = ({router, controller}) => {
   router.get('/guest/getHomePageData', controller.guest.getHomePageData);
   
   router.post('/guest/getOrder', controller.order.getOrderByVisitor);
+
+  router.get('/guest/getShuoshuo', controller.guest.getShuoshuo);
 };
