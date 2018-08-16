@@ -1,6 +1,7 @@
 const Controller = require('egg').Controller;
 const _ = require('lodash/object');
 const request = require('request-promise');
+const {MD5} = request('../utils/index');
 
 class GuestController extends Controller {
   // 获取商品分类数据
@@ -79,8 +80,58 @@ class GuestController extends Controller {
       }
     }
   }
-  
-  
+  // 有米广告回调
+  async youmi_adv_cb() {
+    const dev_server_secret = '';
+    const {order, ad, user, device, chn, points, time, sig, adid, pkg} = this.query;
+    
+    // 检验签名是否正确
+    if (sig !== md5([dev_server_secret, order, app, user, chn, ad, points].join('||')).slice(12, 20)) {
+      return this.ctx.body = {
+        status: 0,
+        msg: '签名不正确！'
+      };
+    }
+    
+    // 然后赠送积分，记录到changelog里
+    this.service.balance.chargePoints(user, points, 'youmi广告任务+' + points + '积分');
+
+    return this.ctx.body = {
+      status: 1,
+      msg: '充值成功！'
+    }
+  }
+
+  // 万普广告回调
+  async waps_adv_cb() {
+    const encryption_key = '';
+    const {adv_id, app_id, key, udid, bill, points, ad_name, status, activate_time, order_id, random_code, wapskey} = this.query;
+         
+    //验证签名
+    const all_parames = [adv_id, app_id, key, udid, bill, points, activate_time, order_id, encryption_key].join('');
+    if (MD5(all_parames) !== wapskey) {
+      return this.ctx.body = {
+        "message": "无效数据",
+        "success": false
+      };
+    }
+
+    // 进行积分充值,异步任务
+    this.service.balance.chargePoints(key, points, 'waps广告任务+' + points + '积分');
+
+    return this.ctx.body = {
+      "message": "成功接收",
+      "success": true
+    };
+  }
+
+  // 万普支付宝回调
+  async waps_pay_cb() {
+    const str = JSON.stringify(this.ctx.query);
+    // 仅允许万普的网关通知
+    const {order_id, app_id, user_id, pay_type, result_code, result_string, trade_id, amount, pay_time} = this.ctx.query;
+    this.ctx.body = this.ctx.ip;
+  }
 }
 
 module.exports = GuestController;

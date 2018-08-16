@@ -10,4 +10,9 @@ module.exports = ({router, controller}) => {
   router.post('/guest/getOrder', controller.order.getOrderByVisitor);
 
   router.get('/guest/getShuoshuo', controller.guest.getShuoshuo);
+
+  // 有米和万普广告任务回调地址
+  router.get('/guest/youmi_adv_cb', controller.guest.youmi_adv_cb);
+  router.get('/guest/waps_adv_cb', controller.guest.waps_adv_cb);
+  router.get('/guest/waps_pay_cb', controller.guest.waps_pay_cb);
 };

@@ -36,10 +36,19 @@ const getApiParamsAlias = () => {
   return alias;
 };
 
+// MD5加密
+const MD5 = str => {
+  var crypto=require('crypto');
+  var md5=crypto.createHash("md5");
+  md5.update(str);
+  return md5.digest('hex');
+}
+
 module.exports = {
   fillNum,
   getUid,
   createJWT,
   parseJWT,
-  getApiParamsAlias
+  getApiParamsAlias,
+  MD5
 };
