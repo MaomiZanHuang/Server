@@ -33,7 +33,7 @@ class UserController extends Controller {
     const {qq} = matchUser;
     const points = getPoints.points || 0;
     const role = 'user_user';
-    const expire = moment().add('days', 30).valueOf();
+    const expire = moment().add(30, 'days').valueOf();
 
     return this.ctx.body = {
       status: 1,
@@ -140,6 +140,13 @@ class UserController extends Controller {
       where: {user}
     })
     return this.ctx.body = _.pick(userInfo, ['email', 'qq', 'reg_time', 'mobile']);
+  }
+  async getUserPoints() {
+    const user = this.ctx.user.user;
+    const balance = await this.app.model.UserBalance.findOne({
+      where: {user}
+    });
+    return this.ctx.body = _.pick(balance, ['user', 'points']);
   }
   // 更新用户基本信息
   async updateInfo() {

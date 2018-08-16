@@ -4,6 +4,8 @@
 module.exports = ({middleware, router, controller}) => {
   // 获取用户基本信息
   router.get('/user/info',  middleware.jwt(), controller.user.getUserInfo);
+  // 获取用户积分
+  router.get('/user/points', middleware.jwt(), controller.user.getUserPoints);
   // 更新基本信息
   router.post('/user/update_info', middleware.jwt(), controller.user.updateInfo);
   // 用户登录

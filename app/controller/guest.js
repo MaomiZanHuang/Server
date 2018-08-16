@@ -62,7 +62,7 @@ class GuestController extends Controller {
     if (isNaN(page)) {
       page = 0
     }
-    const API = 'http://www.tzytlc.com/ajax.php?act=getshuoshuo&uin=' + qq + '&page=' + page + '&hashalt=' +new Date;
+    const API = 'http://www.tzytlc.com/ajax.php?act=getshuoshuo&uin=' + qq + '&page=' + page + '&hashalt=' + (+new Date);
     try {
       const res = await request.get({url: API, json: true});
       res.status = res.code === 0 ? 1 : 0;
