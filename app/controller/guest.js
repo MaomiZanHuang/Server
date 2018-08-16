@@ -130,7 +130,7 @@ class GuestController extends Controller {
     const str = JSON.stringify(this.ctx.query);
     // 仅允许万普的网关通知
     const {order_id, app_id, user_id, pay_type, result_code, result_string, trade_id, amount, pay_time} = this.ctx.query;
-    this.ctx.body = this.ctx.ip;
+    this.ctx.body = this.ctx.ips;
   }
 }
 
