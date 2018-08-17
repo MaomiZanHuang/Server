@@ -2,6 +2,7 @@ const Controller = require('egg').Controller;
 const _ = require('lodash/object');
 const request = require('request-promise');
 const {MD5} = require('../utils/index');
+const moment = require('moment');
 
 class GuestController extends Controller {
   // 获取商品分类数据
@@ -100,6 +101,7 @@ class GuestController extends Controller {
   }
   // 有米广告回调
   async youmi_adv_cb() {
+    const now = moment().format('YYYY-MM-DD HH:mm:ss');
     const dev_server_secret = '7a736e14f6470dbf';
     const {order, ad, user, device, chn, points, time, sig, adid, pkg} = this.ctx.query;
     
@@ -126,6 +128,7 @@ class GuestController extends Controller {
 
   // 万普广告回调
   async waps_adv_cb() {
+    const now = moment().format('YYYY-MM-DD HH:mm:ss');
     const encryption_key = '7a736e14f6470dbf';
     const {adv_id, app_id, key, udid, bill, points, ad_name, status, activate_time, order_id, random_code, wapskey} = this.ctx.query;
     
