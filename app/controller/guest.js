@@ -140,6 +140,8 @@ class GuestController extends Controller {
     if (MD5(all_parames).toUpperCase() !== wapskey) {
       return this.ctx.body = {
         "message": "无效数据",
+        'wapskey': wapskey,
+        'md5': MD5(all_parames).toUpperCase(),
         "success": false
       };
     }
