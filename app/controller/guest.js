@@ -160,6 +160,7 @@ class GuestController extends Controller {
     const ALLOW_IPS = ['219.234.85.205'];
     const now = moment().format('YYYY-MM-DD HH:mm:ss');
     var status = 1;
+    var remark = '';
     const {ip} = this.ctx;
     if (ALLOW_IPS.indexOf(ip) < 0) {
       this.ctx.logger.warn(`[${now}][$ip] 试图发送回调请求被拦截！` )
