@@ -183,7 +183,7 @@ class GuestController extends Controller {
     }
     */
     if (result_code == 0) {
-      const matchOrder = this.app.model.Order.findOne({
+      const matchOrder = await this.app.model.Order.findOne({
         where: {
           order_id
         }
@@ -191,6 +191,8 @@ class GuestController extends Controller {
       if (matchOrder) {
         const goods_spec_id = matchOrder.goods_id;
         const goods_spec = await this.app.model.GoodsSpec.findOne({where: {id: goods_spec_id}});
+        console.log(goods_spec_id);
+        console.log(goods_spec);
         if (!goods_spec) {
           status = 2;
           remark = '非法goods_id';
