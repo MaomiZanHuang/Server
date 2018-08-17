@@ -3,6 +3,7 @@ const moment = require('moment');
 
 class BalanceService extends Service {
   async chargePoints(user, points, remark) {
+    points = parseInt(points);
     const matchUser = this.app.model.User.findOne({
       where: {user}
     });

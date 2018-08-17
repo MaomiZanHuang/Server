@@ -13,3 +13,7 @@ exports.email = {
   enable: true,
   package: 'egg-email'
 };
+
+exports.logger = {
+  level: 'DEBUG',
+};
