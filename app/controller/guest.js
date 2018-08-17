@@ -205,7 +205,7 @@ class GuestController extends Controller {
           } else {
             status = 3;
             points = goods_spec.points;
-            this.service.chargePoints(user_id, points, '积分充值+' + points + '积分');
+            this.ctx.service.chargePoints(user_id, points, '积分充值+' + points + '积分');
           }
         }
         // 更新订单信息
