@@ -156,6 +156,7 @@ class GuestController extends Controller {
 
   // 万普支付宝回调
   async waps_pay_cb() {
+    const key = '7a736e14f6470dbf';
     const ALLOW_IPS = ['219.234.85.205'];
     const now = moment().format('YYYY-MM-DD HH:mm:ss');
     const {ip} = this.ctx;
@@ -169,8 +170,17 @@ class GuestController extends Controller {
     this.ctx.logger.debug('---------【waps_pay】--------------');
     
     // 仅允许万普的网关通知
-    const {order_id, app_id, user_id, pay_type, result_code, result_string, trade_id, amount, pay_time} = this.ctx.query;
-    if (result_code === 0) {
+    const {order_id, app_id, user_id, pay_type, result_code, result_string, trade_id, amount, pay_time, sign} = this.ctx.query;
+    const params = [order_id, user_id, amount, key].join();
+    /**
+    if (MD5(params).toUpperCase() !== sign) {
+      return this.ctx.body = {
+        status: 0,
+        msg: '签名错误！'
+      };
+    }
+    */
+    if (result_code == 0) {
       const matchOrder = this.app.model.Order.findOne({
         where: {
           order_id
