@@ -131,12 +131,13 @@ class GuestController extends Controller {
     const now = moment().format('YYYY-MM-DD HH:mm:ss');
     const encryption_key = '7a736e14f6470dbf';
     const {adv_id, app_id, key, udid, bill, points, ad_name, status, activate_time, order_id, random_code, wapskey} = this.ctx.query;
+    var time = encodeURIComponent(activate_time).replace('%20', '+');
     
     this.ctx.logger.debug(`-----------${now}-----------`);
     this.ctx.logger.debug(JSON.stringify(this.ctx.query));
     this.ctx.logger.debug('---------【waps_pay】--------------');
     //验证签名
-    const all_parames = [adv_id, app_id, key, udid, bill, points, decodeURIComponent(activate_time), order_id, encryption_key].join('');
+    const all_parames = [adv_id, app_id, key, udid, bill, points, time, order_id, encryption_key].join('');
     if (MD5(all_parames).toUpperCase() !== wapskey) {
       return this.ctx.body = {
         "message": "无效数据",
