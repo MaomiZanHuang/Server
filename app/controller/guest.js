@@ -1,7 +1,7 @@
 const Controller = require('egg').Controller;
 const _ = require('lodash/object');
 const request = require('request-promise');
-const {MD5} = request('../utils/index');
+const {MD5} = require('../utils/index');
 
 class GuestController extends Controller {
   // 获取商品分类数据
