@@ -136,7 +136,7 @@ class GuestController extends Controller {
     this.ctx.logger.debug(JSON.stringify(this.ctx.query));
     this.ctx.logger.debug('---------【waps_pay】--------------');
     //验证签名
-    const all_parames = [adv_id, app_id, key, udid, bill, points, activate_time, order_id, encryption_key].join('');
+    const all_parames = [adv_id, app_id, key, udid, bill, points, encodeURIComponent(activate_time), order_id, encryption_key].join('');
     if (MD5(all_parames).toUpperCase() !== wapskey) {
       return this.ctx.body = {
         "message": "无效数据",
