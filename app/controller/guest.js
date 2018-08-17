@@ -103,14 +103,14 @@ class GuestController extends Controller {
   async youmi_adv_cb() {
     const now = moment().format('YYYY-MM-DD HH:mm:ss');
     const dev_server_secret = '7a736e14f6470dbf';
-    const {order, ad, user, device, chn, points, time, sig, adid, pkg} = this.ctx.query;
+    const {order, app, ad, user, device, chn, points, time, sig, adid, pkg} = this.ctx.query;
     
     this.ctx.logger.debug(`-----------${now}-----------`);
     this.ctx.logger.debug(JSON.stringify(this.ctx.query));
     this.ctx.logger.debug('---------【waps_pay】--------------');
 
     // 检验签名是否正确
-    if (sig !== md5([dev_server_secret, order, app, user, chn, ad, points].join('||')).slice(12, 20)) {
+    if (sig !== MD5([dev_server_secret, order, app, user, chn, ad, points].join('||')).slice(12, 20)) {
       return this.ctx.body = {
         status: 0,
         msg: '签名不正确！'
