@@ -114,7 +114,7 @@ class PayController extends Controller {
     }
 
     var {rmb, points} = goods_spec;
-    const price = Math.floor(rmb);
+    const price = parseFloat(rmb);
     points = parseInt(points);
 
     try {
