@@ -1,6 +1,6 @@
 const {parseJWT} = require('../utils/index');
 
-module.exports = () => {
+module.exports = (normal) => {
   return async (ctx, next) => {
     if (ctx.request.header['jwt']) {
       let token = ctx.request.header['jwt'];
@@ -8,7 +8,7 @@ module.exports = () => {
         const user = parseJWT(token);
         ctx.user = user;
       } catch(err) {
-        ctx.status = 403;
+        ctx.status = normal ? 200 : 403;
         ctx.body = {
           status: 0,
           msg: 'token失效！请重新登录!'
