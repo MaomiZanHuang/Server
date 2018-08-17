@@ -8,6 +8,8 @@ module.exports = ({middleware, router, controller}) => {
   router.get('/user/points', middleware.jwt(1), controller.user.getUserPoints);
   // 更新基本信息
   router.post('/user/update_info', middleware.jwt(), controller.user.updateInfo);
+  // 用户的账单
+  router.post('/user/bill', middleware.jwt(), controller.user.getUserBill);
   // 用户登录
   router.post('/user/login', controller.user.login);
   // 用户注册

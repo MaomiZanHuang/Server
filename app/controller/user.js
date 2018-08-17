@@ -368,6 +368,37 @@ class UserController extends Controller {
 
     return this.ctx.body = chargeResult;
   }
+
+  // 用户账单
+  async getUserBill() {
+    const PAGE_SIZE = 10;
+    let user = this.ctx.user.user;
+    let {page, page_size} = this.ctx.request.body;
+    
+    if (!page_size || page_size && page_size > PAGE_SIZE) {
+      page_size = PAGE_SIZE
+    }
+    const result = await this.app.model.BalanceChangelog.findAll({
+      where: {
+        user
+      },
+      limit: page_size,
+      offset: page_size * page,
+      'order': [
+        ['time', 'DESC']
+      ]
+    });
+    return this.ctx.body = result.map(r => {
+      let f = r.balance > r.before_balance;
+      var q = {
+        time: moment(r.time).format('YYYY-MM-DD'),
+        type: f ? '收入' : '支出',
+        change_amt_str: (f ? '+' : '-') + r.change_amt,
+        income: !!f
+      };
+      return Object.assign(r.dataValues, q);
+    });
+  }
 }
 
 module.exports = UserController;
