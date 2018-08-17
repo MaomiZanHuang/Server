@@ -98,21 +98,36 @@ class PayController extends Controller {
   // 创建支付订单
   async create() {
     const order_id = getUid();
-    const {price, points} = this.ctx.request.body;
+    const {id} = this.ctx.request.body;
     
     const user = this.ctx.user.user;
+    const goods_spec = await this.app.model.GoodsSpec.findOne({
+      where: {
+        id
+      }
+    });
+    if (!goods_spec) {
+      return this.ctx.body = {
+        status: 0,
+        msg: '创建失败！充值参数不合法！'
+      };
+    }
+
+    var {rmb, points} = goods_spec;
+    const price = Math.floor(rmb);
+    points = parseInt(points);
 
     try {
       const r = await this.service.order.create({
         id: null,
         order_id,
-        goods_id: '0000',
+        goods_id: id,
         goods_name: '积分充值',
         goods_logo: null,
         // 下单人id
         user,
         // 规格
-        spec_amt: 1,
+        spec_amt: points,
         spec: points + '积分',
         // 价格
         price,

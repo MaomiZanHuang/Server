@@ -80,11 +80,33 @@ class GuestController extends Controller {
       }
     }
   }
+
+  // 获取充值选项goods_id为0的那个，amt字段对应的是card_id
+  async getChargeOptions() {
+    const options = await this.app.model.GoodsSpec.findAll({
+      where: {
+        goods_id: 0
+      }
+    });
+    return this.ctx.body = options.map(({id, title, amt, rmb, points}) => {
+      return {
+        id,
+        title,
+        card: amt,
+        price: rmb,
+        points
+      };
+    });
+  }
   // 有米广告回调
   async youmi_adv_cb() {
-    const dev_server_secret = '';
+    const dev_server_secret = '7a736e14f6470dbf';
     const {order, ad, user, device, chn, points, time, sig, adid, pkg} = this.query;
     
+    this.ctx.logger.debug(`-----------${now}-----------`);
+    this.ctx.logger.debug(JSON.stringify(this.ctx.query));
+    this.ctx.logger.debug('---------【waps_pay】--------------');
+
     // 检验签名是否正确
     if (sig !== md5([dev_server_secret, order, app, user, chn, ad, points].join('||')).slice(12, 20)) {
       return this.ctx.body = {
@@ -104,9 +126,12 @@ class GuestController extends Controller {
 
   // 万普广告回调
   async waps_adv_cb() {
-    const encryption_key = '';
+    const encryption_key = '7a736e14f6470dbf';
     const {adv_id, app_id, key, udid, bill, points, ad_name, status, activate_time, order_id, random_code, wapskey} = this.query;
-         
+    
+    this.ctx.logger.debug(`-----------${now}-----------`);
+    this.ctx.logger.debug(JSON.stringify(this.ctx.query));
+    this.ctx.logger.debug('---------【waps_pay】--------------');
     //验证签名
     const all_parames = [adv_id, app_id, key, udid, bill, points, activate_time, order_id, encryption_key].join('');
     if (MD5(all_parames) !== wapskey) {
@@ -127,10 +152,54 @@ class GuestController extends Controller {
 
   // 万普支付宝回调
   async waps_pay_cb() {
-    const str = JSON.stringify(this.ctx.query);
+    const ALLOW_IPS = ['219.234.85.205'];
+    const now = moment().format('YYYY-MM-DD HH:mm:ss');
+    const {ip} = this.ctx;
+    if (ALLOW_IPS.indexOf(ip) < 0) {
+      this.ctx.logger.warn(`[${now}][$ip] 试图发送回调请求被拦截！` )
+      return this.ctx.body = `403 Forbidden | Your ip [${ip}] is not allowed to access.`;
+    }
+
+    this.ctx.logger.debug(`-----------${now}-----------`);
+    this.ctx.logger.debug(JSON.stringify(this.ctx.query));
+    this.ctx.logger.debug('---------【waps_pay】--------------');
+    
     // 仅允许万普的网关通知
     const {order_id, app_id, user_id, pay_type, result_code, result_string, trade_id, amount, pay_time} = this.ctx.query;
-    this.ctx.body = this.ctx.ips;
+    if (result_code === 0) {
+      const matchOrder = this.app.model.Order.findOne({
+        where: {
+          order_id
+        }
+      });
+      if (matchOrder) {
+        const goods_spec_id = matchOrder.goods_id;
+        const goods_spec = await this.app.model.GoodsSpec.findOne({where: {id: goods_spec_id}});
+        if (!goods_spec) {
+          status = 2;
+          remark = '非法goods_id';
+        } else {
+          if (parseFloat(goods_spec.rmb) != parseFloat(amount)) {
+            // 金额不对
+            status = 2;
+            remark = '支付金额与订单金额不一致';
+          } else {
+            status = 3;
+            points = goods_spec.points;
+            this.service.chargePoints(user_id, points, '积分充值+' + points + '积分');
+          }
+        }
+        // 更新订单信息
+        this.app.model.Order.update({
+          pay_time,
+          status,
+          remark,
+          pay_fee: amount,
+          operator: 'SYSTEM'
+        }, {where: {order_id}});
+      }
+    }
+    return this.ctx.body = 'success';
   }
 }
 
