@@ -141,6 +141,7 @@ class GuestController extends Controller {
       return this.ctx.body = {
         "message": "无效数据",
         'wapskey': wapskey,
+        'params': all_parames,
         'md5': MD5(all_parames).toUpperCase(),
         "success": false
       };
