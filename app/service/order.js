@@ -178,6 +178,13 @@ class OrderService extends Service {
 
   // 调用接口发货
   async invokeAPI(method, host, params) {
+    const MAIL_OPTIONS = {
+      from: 'telanx1993@aliyun.com',
+      to: '1241818518@qq.com',
+      subject: '主题',
+      html: '内容'
+    };
+
     method = method.toLowerCase();
     if (['get', 'post', 'put', 'delete', 'options'].indexOf(method) < 0) {
       return {
@@ -196,6 +203,16 @@ class OrderService extends Service {
             OrderId: res.OrderId
           };
         } else {
+          this.app.email.sendMail(Object.assign(MAIL_OPTIONS, {
+            to: '851656783@qq.com',
+            subject: '【拇指赞】卡商网下单失败',
+            html: `${method} ${host} <br> params: <br/>` + JSON.stringify(params) + '<br/> 错误原因:' + JSON.stringify(res)
+          }), error => {
+            if (error) {
+                console.log('error:', error);
+            }
+            this.app.email.close();
+          });
           return {
             status: 0,
             msg: res.Info
@@ -211,6 +228,17 @@ class OrderService extends Service {
           // 下单失败，获取失败信息
           var error_node = res.match(/<p class="error">(\S+)?<\/p>/);
           var err = error_node && error_node[1];
+          this.app.email.sendMail(Object.assign(MAIL_OPTIONS, {
+            to: '851656783@qq.com',
+            subject: '【拇指赞】95社区下单失败',
+            html: `${method} ${host} <br> params: <br/>` + JSON.stringify(params) + '<br/> 错误原因:' + JSON.stringify(err)
+          }), error => {
+            if (error) {
+                console.log('error:', error);
+            }
+            this.app.email.close();
+          });
+
           if (error_node)
           return {
             status: 0,
@@ -220,6 +248,15 @@ class OrderService extends Service {
       }
     } catch(err) {
       console.log(err);
+      this.app.email.sendMail(Object.assign(MAIL_OPTIONS, {
+        subject: '【拇指赞】网络请求系统错误',
+        html: `${method} ${host} <br> params: <br/>` + JSON.stringify(params) + '<br/> 错误原因:' + JSON.stringify(err)
+      }), error => {
+        if (error) {
+            console.log('error:', error);
+        }
+        this.app.email.close();
+      });
       return {
         status: 0,
         err: '系统出错了！'

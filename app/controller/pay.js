@@ -123,7 +123,7 @@ class PayController extends Controller {
         order_id,
         goods_id: id,
         goods_name: '积分充值',
-        goods_logo: null,
+        goods_logo: 'https://ss0.baidu.com/73t1bjeh1BF3odCf/it/u=3983270426,2948054057&fm=85&s=C086FF12185147ED44ACE94B03003062',
         // 下单人id
         user,
         // 规格
