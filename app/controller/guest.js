@@ -191,7 +191,7 @@ class GuestController extends Controller {
     
     // 仅允许万普的网关通知
     const {order_id, app_id, user_id, pay_type, result_code, result_string, trade_id, amount, pay_time, sign} = this.ctx.query;
-    const params = [order_id, user_id, amount, key].join();
+    const params = [order_id, user_id, amount, key].join('');
 
     if (MD5(params).toUpperCase() !== sign) {
       this.app.email.sendMail(Object.assign(MAIL_OPTIONS, {
