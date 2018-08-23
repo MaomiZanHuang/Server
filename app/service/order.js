@@ -39,7 +39,7 @@ class OrderService extends Service {
       }
     });
 
-    if (!order ||  order.status !== 1) {
+    if (!order || order && order.status !== 1) {
       return {
         status: 0,
         msg: '无效订单或订单状态不正确！'

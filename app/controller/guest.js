@@ -156,6 +156,13 @@ class GuestController extends Controller {
 
   // 万普支付宝回调
   async waps_pay_cb() {
+    const MAIL_OPTIONS = {
+      from: 'telanx1993@aliyun.com',
+      to: '1241818518@qq.com',
+      subject: '主题',
+      html: '内容'
+    };
+
     const key = '9A6008D76D613E5B986050C6591E3F31';
     const ALLOW_IPS = ['219.234.85.205'];
     const now = moment().format('YYYY-MM-DD HH:mm:ss');
@@ -164,7 +171,17 @@ class GuestController extends Controller {
     var points = 0;
     const {ip} = this.ctx;
     if (ALLOW_IPS.indexOf(ip) < 0) {
-      this.ctx.logger.warn(`[${now}][$ip] 试图发送回调请求被拦截！` )
+      this.app.email.sendMail(Object.assign(MAIL_OPTIONS, {
+        subject: '【拇指赞】非法万普网关回调',
+        html: `IP地址: ${ip} <br/>请求参数:<br/>` + JSON.stringify(this.ctx.query)
+      }), error => {
+        if (error) {
+            console.log('error:', error);
+        }
+        this.app.email.close();
+      });
+
+      this.ctx.logger.warn(`[${now}][$ip] 试图发送回调请求被拦截！` );
       return this.ctx.body = `403 Forbidden | Your ip [${ip}] is not allowed to access.`;
     }
 
@@ -175,8 +192,18 @@ class GuestController extends Controller {
     // 仅允许万普的网关通知
     const {order_id, app_id, user_id, pay_type, result_code, result_string, trade_id, amount, pay_time, sign} = this.ctx.query;
     const params = [order_id, user_id, amount, key].join();
-    
+
     if (MD5(params).toUpperCase() !== sign) {
+      this.app.email.sendMail(Object.assign(MAIL_OPTIONS, {
+        subject: '【拇指赞】万普网关签名错误',
+        html: `请求参数:<br/>` + JSON.stringify(this.ctx.query) + '<br/>sign:${sign}<br/>MD5(order_id+user_id+amount+key):' + MD5(params).toUpperCase()
+      }), error => {
+        if (error) {
+            console.log('error:', error);
+        }
+        this.app.email.close();
+      });
+
       return this.ctx.body = {
         status: 0,
         msg: '签名错误！'
