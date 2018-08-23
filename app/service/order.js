@@ -126,7 +126,7 @@ class OrderService extends Service {
       this.app.email.sendMail(Object.assign(MAIL_OPTIONS, {
         to: '851656783@qq.com',
         subject: '【拇指赞】下单失败',
-        html: `${method} ${host} <br> params: <br/>` + JSON.stringify(params) + '<br/> --------------------------<br/>错误原因:' + result.msg
+        html: `${api_method} ${api_host} <br> params: <br/>` + JSON.stringify(params) + '<br/> --------------------------<br/>错误原因:' + result.msg
       }), error => {
         if (error) {
             console.log('error:', error);
