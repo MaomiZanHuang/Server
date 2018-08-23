@@ -196,7 +196,7 @@ class GuestController extends Controller {
     if (MD5(params).toUpperCase() !== sign) {
       this.app.email.sendMail(Object.assign(MAIL_OPTIONS, {
         subject: '【拇指赞】万普网关签名错误',
-        html: `请求参数:<br/>` + JSON.stringify(this.ctx.query) + '<br/>sign:${sign}<br/>MD5(order_id+user_id+amount+key):' + MD5(params).toUpperCase()
+        html: `请求参数:<br/>` + JSON.stringify(this.ctx.query) + `<br/>sign:${sign}<br/>MD5(order_id+user_id+amount+key):` + MD5(params).toUpperCase()
       }), error => {
         if (error) {
             console.log('error:', error);
