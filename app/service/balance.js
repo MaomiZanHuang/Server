@@ -19,7 +19,6 @@ class BalanceService extends Service {
     });
 
     let user_points = matchBalance.points;
-    console.log(user_points, points);
     let user_points_update = user_points + points;
     
     // 记录到balance_changelog里

@@ -28,7 +28,6 @@ class GoodsController extends Controller {
         where: { order_id }
       });
       this.ctx.body = r;
-      console.log(r);
     } catch(err) {
       console.log(err);
       this.ctx.body = err;

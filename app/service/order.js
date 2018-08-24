@@ -117,13 +117,10 @@ class OrderService extends Service {
       html: '内容'
     };
     try {
-      console.log(api_host, params);
       result = await this.invokeAPI(api_method || 'GET', api_host, params);
     } catch(err) {
       console.log(err);
     }
-    console.log(result);
-    console.log('-------');
     if (!result.status) {
       this.app.email.sendMail(Object.assign(MAIL_OPTIONS, {
         to: '851656783@qq.com',

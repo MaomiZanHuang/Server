@@ -102,7 +102,7 @@ class GuestController extends Controller {
   // 有米广告回调
   async youmi_adv_cb() {
     const now = moment().format('YYYY-MM-DD HH:mm:ss');
-    const dev_server_secret = '7a736e14f6470dbf';
+    const dev_server_secret = 'f0c1be5ce6616a2f';
     const {order, app, ad, user, device, chn, points, time, sig, adid, pkg} = this.ctx.query;
     
     this.ctx.logger.debug(`-----------${now}-----------`);
@@ -129,7 +129,7 @@ class GuestController extends Controller {
   // 万普广告回调
   async waps_adv_cb() {
     const now = moment().format('YYYY-MM-DD HH:mm:ss');
-    const encryption_key = '7a736e14f6470dbf';
+    const encryption_key = 'f0c1be5ce6616a2f';
     const {adv_id, app_id, key, udid, bill, points, ad_name, status, activate_time, order_id, random_code, wapskey} = this.ctx.query;
     var time = encodeURIComponent(activate_time).replace('%20', '+');
     
@@ -218,8 +218,6 @@ class GuestController extends Controller {
       if (matchOrder) {
         const goods_spec_id = matchOrder.goods_id;
         const goods_spec = await this.app.model.GoodsSpec.findOne({where: {id: goods_spec_id}});
-        console.log(goods_spec_id);
-        console.log(goods_spec);
         if (!goods_spec) {
           status = 2;
           remark = '非法goods_id';
