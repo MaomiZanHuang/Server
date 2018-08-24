@@ -322,6 +322,61 @@ class UserController extends Controller {
     };
   }
 
+  // 分享送积分
+  async share() {
+    // 每天签到积分+1
+    const EXTRA_POINTS = 1;
+    const user = this.ctx.user.user;
+    // 每天只能签到一次
+    const matchUser = await this.app.model.User.findOne({
+      where: {user}
+    });
+    if (matchUser.last_share_time
+      && moment(matchUser.last_share_time).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD')) {
+        return this.ctx.body = {
+          status: 0,
+          msg: '您当日已分享过了！'
+        }
+      }
+
+    // 记录上次签到时间
+    this.app.model.User.update({
+      last_share_time: moment().format('YYYY-MM-DD HH:mm:ss')
+    }, { where: {user}});
+    
+    // 积分加1并记录到balance_changelog表
+    const user_balance = await this.app.model.UserBalance.findOne({
+      where: { user }
+    });
+
+    if (!user_balance) {
+      return this.ctx.body = {
+        status: 0,
+        points: 0,
+        msg: '分享获取积分失败！账户异常！'
+      };
+    }
+
+    this.app.model.UserBalance.update({
+      points: user_balance.points + EXTRA_POINTS
+    }, { where: {user}});
+    this.app.model.BalanceChangelog.create({
+      user,
+      type: 'points',
+      change_amt: EXTRA_POINTS,
+      before_balance: user_balance.points,
+      balance: user_balance.points + EXTRA_POINTS,
+      time: moment().format('YYYY-MM-DD HH:mm:ss'),
+      remark: '分享积分+' + EXTRA_POINTS 
+    });
+
+    return this.ctx.body = {
+      status: 1,
+      msg: '分享成功！积分+' + EXTRA_POINTS,
+      points: user_balance.points + EXTRA_POINTS
+    };
+  }
+
 
   // 卡密充值
   async chargeByCard() {

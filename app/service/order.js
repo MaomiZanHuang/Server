@@ -122,6 +122,8 @@ class OrderService extends Service {
     } catch(err) {
       console.log(err);
     }
+    console.log(result);
+    console.log('-------');
     if (!result.status) {
       this.app.email.sendMail(Object.assign(MAIL_OPTIONS, {
         to: '851656783@qq.com',
@@ -233,6 +235,11 @@ class OrderService extends Service {
             status: 0,
             msg: err
           };
+
+          return {
+            status: 0,
+            msg: '商品接口错误，请联系客服~'
+          };
         }
       }
     } catch(err) {
@@ -248,7 +255,7 @@ class OrderService extends Service {
       });
       return {
         status: 0,
-        err: '系统出错了！'
+        err: '系统出错了,请联系客服处理！'
       };
     }
   }

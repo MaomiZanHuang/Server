@@ -22,6 +22,8 @@ module.exports = ({middleware, router, controller}) => {
 
   // 用户签到送积分
   router.get('/user/checkin', middleware.jwt(), controller.user.checkin);
+  // 用户分享送积分
+  router.get('/user/share', middleware.jwt(), controller.user.share);
 
   // 卡密充值积分
   router.post('/user/chargeByCard', middleware.jwt(), controller.user.chargeByCard);

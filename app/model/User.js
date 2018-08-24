@@ -27,6 +27,9 @@ module.exports = app => {
     last_checkin_time: {
       type: STRING
     },
+    last_share_time: {
+      type: STRING
+    },
     reg_time: {
       type: STRING
     }
