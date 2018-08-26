@@ -202,6 +202,9 @@ class OrderService extends Service {
     }
     try {
       var res = await request[method](host, { form: params });
+      this.ctx.logger.info(`---------------${method.toUpperCase()}  ${host}--------------`);
+      this.ctx.logger.info(params);
+      this.ctx.logger.info(res);
       if (params.Sign) {
         res = JSON.parse(res);
         if (res && res.Success) {

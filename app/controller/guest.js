@@ -105,9 +105,9 @@ class GuestController extends Controller {
     const dev_server_secret = 'f0c1be5ce6616a2f';
     const {order, app, ad, user, device, chn, points, time, sig, adid, pkg} = this.ctx.query;
     
-    this.ctx.logger.debug(`-----------${now}-----------`);
-    this.ctx.logger.debug(JSON.stringify(this.ctx.query));
-    this.ctx.logger.debug('---------【waps_pay】--------------');
+    this.ctx.logger.info(`-----------${now}-----------`);
+    this.ctx.logger.info(JSON.stringify(this.ctx.query));
+    this.ctx.logger.info('---------【waps_pay】--------------');
 
     // 检验签名是否正确
     if (sig !== MD5([dev_server_secret, order, app, user, chn, ad, points].join('||')).slice(12, 20)) {
@@ -133,9 +133,9 @@ class GuestController extends Controller {
     const {adv_id, app_id, key, udid, bill, points, ad_name, status, activate_time, order_id, random_code, wapskey} = this.ctx.query;
     var time = encodeURIComponent(activate_time).replace('%20', '+');
     
-    this.ctx.logger.debug(`-----------${now}-----------`);
-    this.ctx.logger.debug(JSON.stringify(this.ctx.query));
-    this.ctx.logger.debug('---------【waps_pay】--------------');
+    this.ctx.logger.info(`-----------${now}-----------`);
+    this.ctx.logger.info(JSON.stringify(this.ctx.query));
+    this.ctx.logger.info('---------【waps_pay】--------------');
     //验证签名
     const all_parames = [adv_id, app_id, key, udid, bill, points, time, order_id, encryption_key].join('');
     if (MD5(all_parames).toUpperCase() !== wapskey) {
@@ -185,9 +185,9 @@ class GuestController extends Controller {
       return this.ctx.body = `403 Forbidden | Your ip [${ip}] is not allowed to access.`;
     }
 
-    this.ctx.logger.debug(`-----------${now}-----------`);
-    this.ctx.logger.debug(JSON.stringify(this.ctx.query));
-    this.ctx.logger.debug('---------【waps_pay】--------------');
+    this.ctx.logger.info(`-----------${now}-----------`);
+    this.ctx.logger.info(JSON.stringify(this.ctx.query));
+    this.ctx.logger.info('---------【waps_pay】--------------');
     
     // 仅允许万普的网关通知
     const {order_id, app_id, user_id, pay_type, result_code, result_string, trade_id, amount, pay_time, sign} = this.ctx.query;
