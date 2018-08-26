@@ -202,45 +202,46 @@ class OrderService extends Service {
     }
     try {
       var res = await request[method](host, { form: params });
-      this.ctx.logger.info(`---------------${method.toUpperCase()}  ${host}--------------`);
       this.ctx.logger.info(params);
       this.ctx.logger.info(res);
       if (params.Sign) {
         res = JSON.parse(res);
         if (res && res.Success) {
+          this.ctx.logger.info('卡商网下单成功！');
           return {
             status: 1,
             msg: res.Info,
             OrderId: res.OrderId
           };
         } else {
+          this.ctx.logger.info('卡商网下单失败!');
           return {
             status: 0,
             msg: res.Info
           }
         }
       } else {
-        if (res && res.status) {
+        try {
+          res = JSON.parse(res);
+          this.ctx.logger.info('社区下单成功！');
           return {
-            status: 1,
+            status: res.status,
             msg: res.info
-          };
-        } else {
-          // 下单失败，获取失败信息
+          }; 
+        } catch(err) {
+          this.ctx.logger.info('社区下单失败！');
           var error_node = res.match(/<p class="error">(\S+)?<\/p>/);
           var err = error_node && error_node[1];
-
           if (error_node)
           return {
             status: 0,
             msg: err
           };
-
-          return {
-            status: 0,
-            msg: '商品接口错误，请联系客服~'
-          };
         }
+        return {
+          status: 0,
+          msg: '商品接口错误，请联系客服~'
+        };
       }
     } catch(err) {
       console.log(err);
