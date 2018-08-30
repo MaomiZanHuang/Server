@@ -1,6 +1,7 @@
 const {Controller} = require('egg');
 const {getUid} = require('../utils/index.js');
 const moment = require('moment');
+const request = require('request-promise');
 
 class OrderController extends Controller {
   // 分页查询用户订单
@@ -199,7 +200,31 @@ class OrderController extends Controller {
       msg: '付款成功，服务器正在加速为您刷单！'
     };
   }
-  // 发货自己找一个发货的英文看下即可
+
+  // 找回积分
+  async findPoints() {
+    const order_id = this.ctx.query.id;
+    const user = this.ctx.user.user;
+    console.log('查询' + order_id);
+    var rs = await request.get('http://www.cardbuy.net/Ajax/GetCardList/' + order_id + '?_=' + (+new Date));
+    try {
+      rs = JSON.parse(rs);
+    } catch(err) {
+      rs = {
+        status: 0,
+        msg: '查询失败'
+      };
+    }
+    if (!rs.status) {
+      return this.ctx.body = rs;
+    }
+    // 找到卡号进行充值
+    var card = rs.msg.match(/[A-z|0-9|-]+/)[0];
+    return this.ctx.body = {
+      status: 1,
+      card
+    };
+  }
 }
 
 module.exports = OrderController;
