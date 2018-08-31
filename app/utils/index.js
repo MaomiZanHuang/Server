@@ -1,6 +1,36 @@
 const JWT = require('jwt-simple');
+const request = require('request');
 
 const SECRET_KEY = 'zanhuang';
+
+var SHUOSHUO_SESSION = '';
+
+const getShuoshuoSession = (flag) => {
+  return new Promise((resolve, reject) => {
+    // 默认直接使用上次的SESSION
+    if (!flag) {
+      return resolve(SHUOSHUO_SESSION);
+    }
+    console.log('session 已失效，正尝试重新登录获取session....');
+    request({
+      url: 'http://95.95jw.cn/index.php?m=Home&c=User&a=login&id=11165&goods_type=141',
+      method: "POST",
+      json: true,
+      headers: {
+          "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+      },
+      form: { username: '非凡网络', username_password: 'Qq1234', user_remember: 1, id: '11165', goods_type: '141' } 
+    }, function(error, response, body) {
+      if (!error && response.statusCode == 200) {
+        SHUOSHUO_SESSION = response.headers['set-cookie'][0].split(';')[0]+';';
+        console.log('登录成功并重新设置了session:' + SHUOSHUO_SESSION);
+        return resolve(SHUOSHUO_SESSION);
+      } else {
+        reject(SHUOSHUO_SESSION);
+      }
+    }); 
+  })
+}
 
 // 数字补0
 const fillNum = n => n > 9
@@ -50,5 +80,6 @@ module.exports = {
   createJWT,
   parseJWT,
   getApiParamsAlias,
-  MD5
+  MD5,
+  getShuoshuoSession
 };

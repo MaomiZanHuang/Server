@@ -1,7 +1,7 @@
 const Controller = require('egg').Controller;
 const _ = require('lodash/object');
 const request = require('request-promise');
-const {MD5} = require('../utils/index');
+const {getShuoshuoSession, MD5} = require('../utils/index');
 const moment = require('moment');
 
 class GuestController extends Controller {
@@ -64,15 +64,49 @@ class GuestController extends Controller {
     if (isNaN(page)) {
       page = 0
     }
-    const API = 'http://www.tzytlc.com/ajax.php?act=getshuoshuo&uin=' + qq + '&page=' + page + '&hashalt=' + (+new Date);
+    var form = {
+      uin: qq,
+      page
+    };
+    var UA = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 UBrowser/6.2.4094.1 Safari/537.36';
+    var Cookie = await getShuoshuoSession();
+
+    var options= {
+      method:'post',
+      uri: 'http://95.95jw.cn/index.php?m=home&c=jiuwuxiaohun&a=qq_shuoshuo_lists&goods_type=141&jwxh_token=4504e6ac',
+      qs: form,
+      headers:{
+        Cookie,
+        Host: '95.95jw.cn',
+        Origin: 'http://95.95jw.cn',
+        Referer: 'http://95.95jw.cn/index.php?m=Home&c=Goods&a=detail&id=11165&goods_type=141',
+        'User-Agent': UA
+      },
+      json: true
+    };
+
     try {
-      const res = await request.get({url: API, json: true});
-      res.status = res.code === 0 ? 1 : 0;
-      if (res && res.data) {
-        var data = res.data.map(r => _.pick(r, ['tid', 'content']));
+      const res = await request(options);
+      if (typeof res !== 'object') {
+        // 登录已经失效了，登录获取新的SESSION
+        getShuoshuoSession(1);
+        return this.ctx.body = {
+          status: 0,
+          msg: '获取失败！请点击重新获取！'
+        };
+      };
+      if (res && res.total) {
+        var data = res.msglist.map(r => _.pick(r, ['tid', 'content']));
         res.data = data;
+        return this.ctx.body = {
+          data,
+          status: 1
+        };
       }
-      return this.ctx.body = res;
+      return this.ctx.body = {
+        status: 0,
+        msg: '获取说说失败！可能未开放空间权限！'
+      };
     } catch(err) {
       console.log(err);
       return this.ctx.body = {
