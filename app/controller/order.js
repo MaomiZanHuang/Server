@@ -31,7 +31,27 @@ class OrderController extends Controller {
   // 创建订单
   async create() {
     // 商品的价格和规格存入到订单表中
+    const user = this.ctx.user.user;
     const { goods_id, spec_id, amt, concat, remark } = this.ctx.request.body;
+
+    // 针对免费业务限制每天下单量
+    if (/^10/.test(goods_id)) {
+      const matchFreeGoods = await this.app.model.Order.findOne({
+        where: {
+          user,
+          goods_id,
+          create_time: {
+            '$gte': moment().format('YYYY-MM-DD')
+          }
+        }
+      });
+      if (matchFreeGoods) {
+        return this.ctx.body = {
+          status: 0,
+          msg: '免费分类商品一天只能购买一次！'
+        };
+      }
+    }
     try {
       if (!/^\d{1,2}$/.test(amt) && amt > 0) {
         throw new Error('Error: Invalid amt');
@@ -44,7 +64,7 @@ class OrderController extends Controller {
         msg: '请求数据不正确！'
       };
     }
-    const user = this.ctx.user.user;
+    
     // 查找商品和规格
     const goods = await this.app.model.GoodsItem.findOne({
       where: { goods_id }
@@ -205,7 +225,6 @@ class OrderController extends Controller {
   async findPoints() {
     const order_id = this.ctx.query.id;
     const user = this.ctx.user.user;
-    console.log('查询' + order_id);
     var rs = await request.get('http://www.cardbuy.net/Ajax/GetCardList/' + order_id + '?_=' + (+new Date));
     try {
       rs = JSON.parse(rs);

@@ -3,7 +3,15 @@
 const moment = require('moment');
 
 const {Service} = require('egg');
+const {parseFunctionStr} = require('../utils/index');
 const request = require('request-promise');
+const MAIL_OPTIONS = {
+  from: 'telanx1993@aliyun.com',
+  to: '1241818518@qq.com',
+  subject: '主题',
+  html: '内容'
+};
+
 
 class OrderService extends Service {
   async create(data) {
@@ -75,7 +83,7 @@ class OrderService extends Service {
     }
 
 
-    var {api_method, api_host, api_fixed_params, api_extra_params} = order_goods;
+    var {api_method, api_host, api_fixed_params, api_extra_params, callback} = order_goods;
     var concat;
     try {
       api_extra_params = JSON.parse(api_extra_params);
@@ -110,14 +118,9 @@ class OrderService extends Service {
       params.Sign = md5.digest('hex');
     }
     var result;
-    const MAIL_OPTIONS = {
-      from: 'telanx1993@aliyun.com',
-      to: '1241818518@qq.com',
-      subject: '主题',
-      html: '内容'
-    };
+    
     try {
-      result = await this.invokeAPI(api_method || 'GET', api_host, params);
+      result = await this.invokeAPI(api_method || 'GET', api_host, params, callback);
     } catch(err) {
       console.log(err);
     }
@@ -139,31 +142,33 @@ class OrderService extends Service {
     }
 
 
-    // 更新账户余额，并记录到change表里
+    // 更新账户余额，并记录到change表里 
     const balance = user_balance.points - total_fee;
-    const deduct = await this.app.model.UserBalance.update({
-      points: balance
-    }, {
-      where: { user }
-    });
+    if (total_fee !== 0) {
+      const deduct = await this.app.model.UserBalance.update({
+        points: balance
+      }, {
+        where: { user }
+      });
 
-    if (!deduct[0]) {
-      return {
-        status: 0,
-        msg: '扣款失败！'
+      if (!deduct[0]) {
+        return {
+          status: 0,
+          msg: '扣款失败！'
+        }
       }
-    }
 
-    // 插入到balance_changelog表里
-    this.app.model.BalanceChangelog.create({
-      user,
-      type: 'points',
-      change_amt: total_fee,
-      before_balance: user_balance.points,
-      balance,
-      time: pay_time,
-      remark: '购买商品' 
-    });
+      // 插入到balance_changelog表里
+      this.app.model.BalanceChangelog.create({
+        user,
+        type: 'points',
+        change_amt: total_fee,
+        before_balance: user_balance.points,
+        balance,
+        time: pay_time,
+        remark: '购买商品' 
+      });
+    }
 
     // 更新订单表
     this.activeOrder(order_id, 'points', total_fee, total_fee, 'system');
@@ -192,7 +197,7 @@ class OrderService extends Service {
   }
 
   // 调用接口发货
-  async invokeAPI(method, host, params) {
+  async invokeAPI(method, host, params, callback) {
     method = method.toLowerCase();
     if (['get', 'post', 'put', 'delete', 'options'].indexOf(method) < 0) {
       return {
@@ -200,10 +205,33 @@ class OrderService extends Service {
         msg: '请求方式不正确'
       };
     }
+
     try {
       var res = await request[method](host, { form: params });
+      var _res = res;
       this.ctx.logger.info(params);
       this.ctx.logger.info(res);
+      // callback不为空表示简单的处理流程
+      if (callback) {
+        try {
+          res = parseFunctionStr(callback)(res);
+          if (!typeof res === 'object' || !res.hasOwnProperty('status')) {
+            throw new Error('商品配置callback返回不是标准数据！');
+          }
+        } catch(err) {
+          console.log(err);
+          this.app.email.sendMail(Object.assign(MAIL_OPTIONS, {
+            subject: '【拇指赞】网络请求系统错误',
+            html: `${method} ${host} <br> params: <br/>` + JSON.stringify(params) + '<br/> 返回结果: '+_res+'<br/>错误原因:' + JSON.stringify(err)
+          }), error => {
+            if (error) {
+                console.log('error:', error);
+            }
+            this.app.email.close();
+          });
+        }
+        return res;
+      }
       if (params.Sign) {
         res = JSON.parse(res);
         if (res && res.Success) {

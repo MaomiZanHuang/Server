@@ -1,7 +1,7 @@
 /**
  * 访客模式下一些接口
  */
-module.exports = ({router, controller}) => {
+module.exports = ({middleware, router, controller}) => {
   /** 商品分类 */
   router.get('/guest/goods_cata', controller.guest.getGoodsCata);
   /** 获取首页其它数据，不包括分类 */
@@ -9,7 +9,7 @@ module.exports = ({router, controller}) => {
   
   router.post('/guest/getOrder', controller.order.getOrderByVisitor);
 
-  router.get('/guest/getShuoshuo', controller.guest.getShuoshuo);
+  router.get('/guest/getShuoshuo', middleware.jwt(), controller.guest.getShuoshuo);
 
   // 充值选项
   router.get('/guest/charge_options', controller.guest.getChargeOptions);

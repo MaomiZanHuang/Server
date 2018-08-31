@@ -74,6 +74,21 @@ const MD5 = str => {
   return md5.digest('hex');
 }
 
+/**
+ * 示例 function(res) {
+ * res += 'a';
+ * return res.status;
+ * }
+ */
+const parseFunctionStr = str => {
+  str = str.trim();
+  var _prefix = str.match(/^function[\S|\s]+?{/);
+  var prefix = _prefix[0];
+  var param = prefix.replace(/^function\s*?\(/, '').replace(/\)\s*{$/, '').trim();
+  var function_body = str.replace(prefix, '').replace(/}$/, '');
+  return new Function(param, function_body);
+}
+
 module.exports = {
   fillNum,
   getUid,
@@ -81,5 +96,6 @@ module.exports = {
   parseJWT,
   getApiParamsAlias,
   MD5,
-  getShuoshuoSession
+  getShuoshuoSession,
+  parseFunctionStr
 };
