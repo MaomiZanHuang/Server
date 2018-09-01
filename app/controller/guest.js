@@ -196,8 +196,14 @@ class GuestController extends Controller {
       subject: '主题',
       html: '内容'
     };
-
-    const key = '9A6008D76D613E5B986050C6591E3F31';
+    const app_id1 = 'bb56be4486b5fbb12556756323b3c96b';
+    const app_key1 = 'F327D9263A67FFD3396A04CC7BA492CD';
+    const app_id2 = '4523db3cffd6867c23c9b707fc783238';
+    const app_key2 = '9A6008D76D613E5B986050C6591E3F31';
+    const app_key = {
+      [app_id1]: app_key1,
+      [app_id2]: app_key2
+    };
     const ALLOW_IPS = ['219.234.85.205'];
     const now = moment().format('YYYY-MM-DD HH:mm:ss');
     var status = 1;
@@ -225,6 +231,7 @@ class GuestController extends Controller {
     
     // 仅允许万普的网关通知
     const {order_id, app_id, user_id, pay_type, result_code, result_string, trade_id, amount, pay_time, sign} = this.ctx.query;
+    const key = app_key[app_id];
     const params = [order_id, user_id, amount, key].join('');
 
     if (MD5(params).toUpperCase() !== sign) {
