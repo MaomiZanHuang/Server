@@ -18,4 +18,7 @@ module.exports = ({middleware, router, controller}) => {
   router.get('/guest/youmi_adv_cb', controller.guest.youmi_adv_cb);
   router.get('/guest/waps_adv_cb', controller.guest.waps_adv_cb);
   router.get('/guest/waps_pay_cb', controller.guest.waps_pay_cb);
+
+  // 抖音短链接转化
+  router.get('/guest/douyin_url', controller.guest.douyin_url);
 };

@@ -285,6 +285,27 @@ class GuestController extends Controller {
     }
     return this.ctx.body = 'success';
   }
+
+  async douyin_url() {
+    const {url} = this.ctx.query;
+    const reqOpt = { url };
+    const reqPromiseOpt = Object.assign({}, reqOpt, {transform: function (body, res, resolveWithFullResponse) {
+      return res;
+    }});
+    try {
+      var r = await request(reqPromiseOpt);
+      this.ctx.body = {
+        status: 1,
+        data: r.request.uri.href,
+        msg: "获取成功！"
+      };
+    } catch(err) {
+      this.ctx.body = {
+        status: 0,
+        msg: "获取失败！"
+      };
+    }
+  }
 }
 
 module.exports = GuestController;
