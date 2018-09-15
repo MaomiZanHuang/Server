@@ -55,8 +55,11 @@ class PayController extends Controller {
     var input = form_node.match(/<input(\s|\S)+?\/>/)[0];
     var qr_img = form_node.match(/<img(\s|\S)+?\/>/)[0];
     var qr = '';
-    if (qr_img.match(/(data\S+)"/)) {
-      qr = qr_img.match(/data=(\S+)?"/)[1];
+    if (qr_img.match(/src="(\S+)?"/)) {
+      qr_img = qr_img.match(/src="(\S+)?"/)[1]
+    }
+    if (qr_img.match(/weixin\S+/)) {
+      qr = qr_img.match(/weixin\S+/)[0];
     }
 
     return this.ctx.body = {
@@ -65,7 +68,7 @@ class PayController extends Controller {
       action,
       input,
       qr,
-      qr_img: 'http://www.cardbuy.net/Gateway/QrCode?data=' + qr
+      qr_img
     };
   }
   async queryCardOrder() {
