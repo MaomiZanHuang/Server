@@ -58,6 +58,9 @@ class PayController extends Controller {
     if (qr_img.match(/src="(\S+)?"/)) {
       qr_img = qr_img.match(/src="(\S+)?"/)[1]
     }
+    if (qr_img.match(/qq.com/)) {
+      qr_img = 'http://www.cardbuy.net' + qr_img;
+    }
     if (qr_img.match(/weixin\S+/)) {
       qr = qr_img.match(/weixin\S+/)[0];
     }
