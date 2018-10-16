@@ -20,7 +20,11 @@ class GuestService extends Service {
 
   // 日销量前5商品
   async getTop5HotGoods() {
-    return await this.ctx.model.GoodsItem.findAll({ limit: 5 });
+    return await this.ctx.model.GoodsItem.findAll({ where: {
+      goods_id: {
+        $in: [2003, 3003, 3002, 3001, 4001]
+      }
+    }, limit: 5 });
   }
 
   // 公告前5条
