@@ -13,6 +13,28 @@ class UserService extends Service {
     return macthUser;
   }
 
+  // 检查是否存在qq_user
+  async checkQQUser(open_id) {
+    const macthQQUser = await this.app.model.QQUser.findOne({
+      where: {
+        open_id
+      }
+    });
+    console.log('----------------');
+    console.log(macthQQUser);
+    console.log('----------------');
+    if (!macthQQUser) {
+      return void(0);
+    }
+    var user = macthQQUser.user;
+    const macthUser = await this.app.model.User.findOne({
+      where: {
+        user
+      }
+    });
+    return macthUser;
+  }
+
   // 注册时检查用户名是否存在
   async checkUserExist(user) {
     const macthUser = await this.app.model.User.findOne({

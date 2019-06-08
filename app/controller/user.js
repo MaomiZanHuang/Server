@@ -6,13 +6,31 @@ const _ = require('lodash/object');
 // 认证信息采用无状态的JWT
 class UserController extends Controller {
   async login() {
-    const {user, pwd} = this.ctx.request.body;
-    const matchUser = await this.service.user.checkLoginPwd(user, pwd);
+    var {user, pwd, open_id} = this.ctx.request.body;
+    
     if (this.ctx.session.tryLogin > 10) {
       return this.ctx.body = {
         status: 0,
         msg: '错误次数超限，请稍后重试！'
       };
+    }
+
+    var matchUser;
+    // 仅对绑定了账号密码的进行验证
+    console.log(open_id);
+    if (typeof open_id !== 'undefined') {
+      matchUser = await this.service.user.checkQQUser(open_id);
+      if (!matchUser) {
+        return this.ctx.body = {
+          status: 0,
+          newuser: 1,
+          msg: '未绑定账号'
+        };
+      } else {
+        user = matchUser.user;
+      }
+    } else {
+      matchUser = await this.service.user.checkLoginPwd(user, pwd);
     }
     if (!matchUser) {
       this.ctx.session.tryLogin  = (this.ctx.session.tryLogin || 0) + 1;
@@ -453,6 +471,39 @@ class UserController extends Controller {
       };
       return Object.assign(r.dataValues, q);
     });
+  }
+
+  // 绑定快捷登录
+  async bindOpneId() {
+    const {open_id} = this.ctx.request.body;
+    const user = this.ctx.user.user;
+    var matchOpenId = await this.app.model.QQUser.findOne({
+      where: {
+        open_id
+      }
+    });
+    if (matchOpenId) {
+      return this.ctx.body = {
+        status: 0,
+        msg: '您当前授权QQ已绑定过账号！'
+      };
+    }
+    var res = await this.app.model.QQUser.create({
+      open_id,
+      user
+    });
+
+    if (res) {
+      return this.ctx.body = {
+        status: 1,
+        msg: '绑定成功！'
+      };
+    } else {
+      return this.ctx.body = {
+        status: 0,
+        msg: '绑定失败！您当前授权QQ可能已经绑定了其它账号！'
+      };
+    }
   }
 }
 

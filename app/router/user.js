@@ -27,4 +27,7 @@ module.exports = ({middleware, router, controller}) => {
 
   // 卡密充值积分
   router.post('/user/chargeByCard', middleware.jwt(), controller.user.chargeByCard);
+
+  // 绑定openid
+  router.post('/user/bindOpenId', middleware.jwt(), controller.user.bindOpneId);
 };
