@@ -89,6 +89,118 @@ const parseFunctionStr = str => {
   return new Function(param, function_body);
 }
 
+const getClientIpFromXForwardedFor = value => {
+  if (!(value)) {
+      return null;
+  }
+
+  if (typeof value !== 'string') {
+      return null;
+  }
+
+  const forwardedIps = value.split(',').map((e) => {
+      const ip = e.trim();
+      if (ip.includes(':')) {
+          const splitted = ip.split(':');
+          // make sure we only use this if it's ipv4 (ip:port)
+          if (splitted.length === 2) {
+              return splitted[0];
+          }
+      }
+      return ip;
+  });
+  return forwardedIps.find(is.ip);
+}
+
+// 获取用户端IP
+const getClientIp = req => {
+
+  // Server is probably behind a proxy.
+  if (req.headers) {
+      
+      // Standard headers used by Amazon EC2, Heroku, and others.
+      if (req.headers['x-client-ip']) {
+          return req.headers['x-client-ip'];
+      }
+
+      // Load-balancers (AWS ELB) or proxies.
+      const xForwardedFor = getClientIpFromXForwardedFor(req.headers['x-forwarded-for']);
+      if (xForwardedFor) {
+          return xForwardedFor;
+      }
+
+
+      if (req.headers['cf-connecting-ip']) {
+          return req.headers['cf-connecting-ip'];
+      }
+
+      // Fastly and Firebase hosting header (When forwared to cloud function)
+      if (req.headers['fastly-client-ip']) {
+          return req.headers['fastly-client-ip'];
+      }
+
+      // Akamai and Cloudflare: True-Client-IP.
+      if (req.headers['true-client-ip']) {
+          return req.headers['true-client-ip'];
+      }
+
+      // Default nginx proxy/fcgi; alternative to x-forwarded-for, used by some proxies.
+      if (req.headers['x-real-ip']) {
+          return req.headers['x-real-ip'];
+      }
+
+      if (req.headers['x-cluster-client-ip']) {
+          return req.headers['x-cluster-client-ip'];
+      }
+
+      if (req.headers['x-forwarded']) {
+          return req.headers['x-forwarded'];
+      }
+
+      if (req.headers['forwarded-for']) {
+          return req.headers['forwarded-for'];
+      }
+
+      if (req.headers.forwarded) {
+          return req.headers.forwarded;
+      }
+  }
+
+  // Remote address checks.
+  if (req.connection) {
+      if (req.connection.remoteAddress) {
+          return req.connection.remoteAddress;
+      }
+      if (req.connection.socket && req.connection.socket.remoteAddress) {
+          return req.connection.socket.remoteAddress;
+      }
+  }
+
+  if (req.socket && (req.socket.remoteAddress)) {
+      return req.socket.remoteAddress;
+  }
+
+  if ((req.info) && (req.info.remoteAddress)) {
+      return req.info.remoteAddress;
+  }
+
+  // AWS Api Gateway + Lambda
+  if ((req.requestContext) && (req.requestContext.identity) && (req.requestContext.identity.sourceIp)) {
+      return req.requestContext.identity.sourceIp;
+  }
+
+  return null;
+}
+
+const randomInt = (start, end) => {
+  let gap = end - start;
+  return start + Math.round(gap * Math.random());
+}
+
+const encrypt = (str, key) => {
+  return str^key;
+}
+
 module.exports = {
   fillNum,
   getUid,
@@ -97,5 +209,8 @@ module.exports = {
   getApiParamsAlias,
   MD5,
   getShuoshuoSession,
-  parseFunctionStr
+  parseFunctionStr,
+  getClientIp,
+  encrypt,
+  randomInt
 };

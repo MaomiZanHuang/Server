@@ -1,5 +1,5 @@
 const {Controller} = require('egg');
-const {createJWT} = require('../utils/index.js');
+const {createJWT, getClientIp, randomInt, encrypt} = require('../utils/index.js');
 const moment = require('moment');
 const _ = require('lodash/object');
 
@@ -100,8 +100,9 @@ class UserController extends Controller {
     const points = 0;
     const role = 'user_user';
     const expire = moment().add(30, 'days').valueOf();
+    const ip = getClientIp(this.ctx.req);
     try {
-      await this.service.user.reg(user, pwd, qq);
+      await this.service.user.reg(user, pwd, qq, ip);
     } catch(err) {
       console.log(err);
       return this.ctx.body = {
@@ -392,6 +393,96 @@ class UserController extends Controller {
       status: 1,
       msg: '分享成功！积分+' + EXTRA_POINTS,
       points: user_balance.points + EXTRA_POINTS
+    };
+  }
+
+  // 做广告送积分(每天限2次)
+  async doAd() {
+    // 任务积分至多20
+    const user = this.ctx.user.user;
+    const {t, sign} = this.ctx.request.body;
+    var sysT = +new Date;
+    if (isNaN(t)
+      || isNaN(sign)
+      || Math.abs(t - sysT) > 60 * 1000
+      || (sign != encrypt(t, (''+t).slice(-4)))) {
+      return this.ctx.body = {
+        status: 0,
+        msg: 'FBI WARNING:请不要非法构造请求(您的IP已记录)~'
+      };
+    }
+    // 每天只能签到一次
+    const adTimes = await this.app.model.BalanceChangelog.count({
+      where: {
+        user,
+        remark: { $like: '%广告%' }
+      }
+    });
+    if (isNaN(adTimes)) {
+      adTimes = 0;
+    }
+    const MAX_POINTS = 35 - 2 * adTimes;
+    const EXTRA_POINTS = randomInt(5, MAX_POINTS < 10 ? 10 : MAX_POINTS);
+
+    const last_ad_record = await this.app.model.BalanceChangelog.count({
+      where: {
+        user,
+        remark: {$like: '%看广告积分%'},
+        time: {
+          '$gte': moment().format('YYYY-MM-DD')
+        }
+      }
+    });
+
+    if (!isNaN(last_ad_record) && last_ad_record >= 3) {
+      return this.ctx.body = {
+        status: 0,
+        msg: '您当日任务次数超限，请明天再来！'
+      }
+    }
+
+    
+    // 积分加1并记录到balance_changelog表
+    const user_balance = await this.app.model.UserBalance.findOne({
+      where: { user }
+    });
+
+    if (!user_balance) {
+      return this.ctx.body = {
+        status: 0,
+        points: 0,
+        msg: '分享获取积分失败！账户异常！'
+      };
+    }
+
+    this.app.model.UserBalance.update({
+      points: user_balance.points + EXTRA_POINTS
+    }, { where: {user}});
+    this.app.model.BalanceChangelog.create({
+      user,
+      type: 'points',
+      change_amt: EXTRA_POINTS,
+      before_balance: user_balance.points,
+      balance: user_balance.points + EXTRA_POINTS,
+      time: moment().format('YYYY-MM-DD HH:mm:ss'),
+      remark: '看广告积分+' + EXTRA_POINTS 
+    });
+
+    return this.ctx.body = {
+      status: 1,
+      msg: '广告奖励积分+' + EXTRA_POINTS,
+      points: user_balance.points + EXTRA_POINTS
+    };
+  }
+
+  // 获取通过广告得到的积分
+  async getAdPoints() {
+    const user = this.ctx.user.user;
+    const ad_points = await this.service.user.getAdPoints(user);
+    return this.ctx.body = {
+      status: 1,
+      points: isNaN(ad_points) ? 0 : ad_points,
+      msg: '广告赚取积分'
     };
   }
 

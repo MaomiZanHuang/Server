@@ -20,9 +20,7 @@ class UserService extends Service {
         open_id
       }
     });
-    console.log('----------------');
-    console.log(macthQQUser);
-    console.log('----------------');
+
     if (!macthQQUser) {
       return void(0);
     }
@@ -46,7 +44,7 @@ class UserService extends Service {
   }
 
   // 添加新账户
-  async reg(user, login_pwd, qq) {
+  async reg(user, login_pwd, qq, ip) {
     // 创建初始余额账户
     this.app.model.UserBalance.create({
       user,
@@ -60,7 +58,8 @@ class UserService extends Service {
       qq,
       pay_pwd: 123456,
       reg_time: moment().format('YYYY-MM-DD HH:mm:ss'),
-      last_login_time: moment().format('YYYY-MM-DD HH:mm:ss')
+      last_login_time: moment().format('YYYY-MM-DD HH:mm:ss'),
+      reg_platform: ip
     });
   }
   // 设置支付密码
@@ -81,6 +80,17 @@ class UserService extends Service {
       }
     });
     return !!macthUser;
+  }
+
+  // 获取广告积分
+  async getAdPoints(user) {
+    const points = await this.app.model.BalanceChangelog.sum('change_amt', {
+      where: {
+        user,
+        remark: { $like: '%广告%' }
+      }
+    });
+    return points;
   }
 }
 

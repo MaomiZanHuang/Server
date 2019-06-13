@@ -32,6 +32,10 @@ module.exports = app => {
     },
     reg_time: {
       type: STRING
+    },
+    // 注册ip地址
+    reg_platform: {
+      type: STRING
     }
     
   }, {
