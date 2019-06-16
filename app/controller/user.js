@@ -161,6 +161,21 @@ class UserController extends Controller {
     }
   }
 
+  // 获取用户反馈信息
+  async getFeedback() {
+    const user = this.ctx.user.user;
+    const feeds = await this.app.model.Feedback.findAll({
+      where: {
+        user
+      }
+    });
+
+    return this.ctx.body = {
+      status: 1,
+      feedbacks: feeds
+    }
+  }
+
   // 获取用户基本信息
   async getUserInfo() {
     const user = this.ctx.user.user;

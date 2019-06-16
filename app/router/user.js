@@ -19,6 +19,8 @@ module.exports = ({middleware, router, controller}) => {
   router.post('/user/update_paypwd', middleware.jwt(), controller.user.updatePayPwd)
   // 用户反馈记录
   router.post('/user/feedback', middleware.jwt(), controller.user.feedback);
+  // 获取用户反馈记录
+  router.get('/user/getFeedback', middleware.jwt(), controller.user.getFeedback);
 
   // 用户签到送积分
   router.get('/user/checkin', middleware.jwt(), controller.user.checkin);

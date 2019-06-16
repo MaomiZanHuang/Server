@@ -12,6 +12,9 @@ module.exports = app => {
     content: {
       type: STRING
     },
+    response: {
+      type: STRING
+    },
     create_time: {
       type: STRING
     }
