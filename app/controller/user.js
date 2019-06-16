@@ -68,17 +68,26 @@ class UserController extends Controller {
   }
 
   async reg() {
-    const {user, pwd, qq, imei} = this.ctx.request.body;
-    if (user.trim().lenght < 4 || user.trim().length > 12) {
+    var {user, pwd, qq, inviter} = this.ctx.request.body;
+    user = user.trim();
+    pwd = pwd.trim();
+    qq = qq.trim();
+    if (isNaN(user) || user.length < 5 || user.length > 10) {
       return this.ctx.body = {
         status: 0,
-        msg: '账号4~12位数字或字母！'
+        msg: '账号为5~10位数字QQ号'
       }
     }
-    if (pwd.trim() === '') {
+    if (pwd == '') {
       return this.ctx.body = {
         status: 0,
         msg: '密码不能为空'
+      };
+    }
+    if (user !== qq) {
+      return this.ctx.body = {
+        status: 0,
+        msg: '两次输入账号不一致！'
       };
     }
     if (this.ctx.session.tryReg >= 1) {
