@@ -13,7 +13,7 @@ const getShuoshuoSession = (flag) => {
     }
     console.log('session 已失效，正尝试重新登录获取session....');
     request({
-      url: 'http://95.95jw.cn/index.php?m=Home&c=User&a=login&id=11165&goods_type=141',
+      url: 'http://95.50qq.cn/index.php?m=Home&c=User&a=login&id=11165&goods_type=141',
       method: "POST",
       json: true,
       headers: {

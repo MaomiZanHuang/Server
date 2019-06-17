@@ -73,19 +73,20 @@ class GuestController extends Controller {
 
     var options= {
       method:'post',
-      uri: 'http://95.95jw.cn/index.php?m=home&c=jiuwuxiaohun&a=qq_shuoshuo_lists&goods_type=141&jwxh_token=4504e6ac',
+      uri: 'http://95.50qq.cn/index.php?m=home&c=jiuwuxiaohun&a=qq_shuoshuo_lists&goods_type=75&jwxh_token=110b1ed4',
       qs: form,
       headers:{
         Cookie,
-        Host: '95.95jw.cn',
-        Origin: 'http://95.95jw.cn',
-        Referer: 'http://95.95jw.cn/index.php?m=Home&c=Goods&a=detail&id=11165&goods_type=141',
+        Host: '95.50qq.cn',
+        Origin: 'http://95.50qq.cn',
+        Referer: 'http://95.50qq.cn/index.php?m=Home&c=Goods&a=detail&id=11165&goods_type=141',
         'User-Agent': UA
       },
       json: true
     };
 
     try {
+      
       const res = await request(options);
       if (typeof res !== 'object') {
         // 登录已经失效了，登录获取新的SESSION
