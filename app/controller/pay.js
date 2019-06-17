@@ -11,88 +11,128 @@ class PayController extends Controller {
   async getCardOrder() {
     const {type, price, goodid, contact} = this.ctx.request.body;
     var UA = this.ctx.request.headers['user-agent'] || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36';
+    var USER_ID = '10556';
+    var CATA_ID = '348';
     var TYPE_PIDS = {
-      wx: 85,
-      qq: 86,
-      zfb: 2
+      wx: 170,
+      qq: 99,
+      zfb: 167
     };
-    var pid = TYPE_PIDS[type] || 2;
-    const FAKA_API = 'http://www.cardbuy.net/Gateway/RequestTo';
-    var form = { userid: '2Evp', kucun: 3, price, isapi: 0, cateid: 37489, goodid, quantity: 1, contact, pid,  cardquantity: 1 };
-    form = {
-      ...form,
-      gameid: '',
-      bill: '',
-      apiurl: '',
-      email: '',
-      couponcode: '', 
-      'cardvalue[]': '',
-      'cardnum[]': '',
-      'cardpwd[]': ''
+
+    var pid = TYPE_PIDS[type] || 170;
+    const FAKA_API = 'http://www.xsfaka.com/pay/order';
+    var form = {
+      userid: USER_ID,
+      token: '10a10ab2c429b7bf2935d63e25b43e62',
+      cardNoLength: 0,
+      cardPwdLength: 0,
+      is_discount: 0,
+      coupon_ctype: 0,
+      coupon_value: 0,
+      sms_price: 0,
+      paymoney: price,
+      danjia: price,
+      cateid: CATA_ID,
+      goodid: goodid,
+      quantity: 1,
+      kucun: 1,
+      contact: contact,
+      feePayer: 1,
+      fee_rate: 0.02,
+      min_fee: 0.01,
+      pid
     };
     var options= {
       method:'post',
       uri: FAKA_API,
       qs: form,
       headers:{
-        Host: 'www.cardbuy.net',
-        Origin: 'http://www.cardbuy.net',
-        Referer: 'http://www.cardbuy.net/list/2Evpu',
+        Host: 'www.xsfaka.com',
+        Origin: 'http://www.xsfaka.com',
+        Referer: 'http://www.xsfaka.com/linkshop/130252B1',
         'User-Agent': UA
       },
       json: true
     };
     const res = await request(options);
-    if (!res.match(/<form(\s|\S)+?<\/form>/)) {
+    if (!res.match(/value="(\S+)"/i)) {
       return this.ctx.body = {
         status: 0,
         msg: res
       };
     }
-    var form_node = res.match(/<form(\s|\S)+?<\/form>/)[0];
-    var order_no = form_node.match(/<strong>(\d+)<\/strong>/)[1];
-    var action = 'http://www.cardbuy.net' + form_node.match(/action="(\S+)"/)[1];
-    var input = form_node.match(/<input(\s|\S)+?\/>/)[0];
-    var qr_img = form_node.match(/<img(\s|\S)+?\/>/)[0];
-    var qr = '';
-    if (qr_img.match(/src="(\S+)?"/)) {
-      qr_img = qr_img.match(/src="(\S+)?"/)[1]
+    var order_no = res.match(/value="(\S+)"/)[1];
+    
+    
+    var FAKA_API2 = 'http://www.xsfaka.com/index/pay/payment';
+    var options2 = {
+      method:'post',
+      uri: FAKA_API2,
+      qs: {
+        'trade_no': order_no,
+        'agree_on': 'on'
+      },
+      headers:{
+        Host: 'www.xsfaka.com',
+        Origin: 'http://www.xsfaka.com',
+        Referer: 'http://www.xsfaka.com/linkshop/130252B1',
+        'User-Agent': UA
+      },
+      json: true
     }
-    if (qr_img.match(/qq.com/)) {
-      qr_img = 'http://www.cardbuy.net' + qr_img;
+    const res2 = await request(options2);
+    
+    var qr = res2.match(/text:\s\"(\S+)\"/i);
+    if (!qr) {
+      return this.ctx.body = {
+        status: 0,
+        msg: '获取二维码失败'
+      };
     }
-    if (qr_img.match(/weixin\S+/)) {
-      qr = qr_img.match(/weixin\S+/)[0];
-    }
-
+    qr = qr[1];
+    var QR_SERVER2 = 'http://qr.liantu.com/api.php?text=';
+    var QR_SERVER1 = 'https://www.kuaizhan.com/common/encode-png?large=true&data=';
     return this.ctx.body = {
       status: 1,
       order_no,
-      action,
-      input,
-      qr,
-      qr_img
+      qr: QR_SERVER1 + qr,
+      qr2: QR_SERVER2 + qr,
+      qrText: qr,
+      msg: '创建订单成功，请及时支付！'
     };
   }
+
+
   async queryCardOrder() {
-    const pay_id = this.ctx.params.id;
+    var order_no = this.ctx.params.order_no;
+    // 先获取token
+    var tokenHost = 'http://www.xsfaka.com/orderquery?orderid='+order_no+'&querytype=2';
+		var tokenRes = await request({
+      method: 'GET',
+      uri: tokenHost
+    });
+
+		var token = tokenRes.match(/token:\'(\S+)\'/);
+		if (!token) {
+      return this.ctx.body = {
+        status: 0,
+        msg: 'token获取失败！'
+      };
+    }
+    token = token[1];
+
     var options= {
-      method:'get',
-      uri: 'http://www.cardbuy.net/Ajax/GetCardList/' + pay_id,
-      qs: {
-        _: +new Date
-      },
+      method:'GET',
+      uri: 'http://www.xsfaka.com/checkgoods?t='+new Date+'&orderid='+order_no+'&token='+token,
       headers:{
-        Host: 'www.cardbuy.net',
-        Origin: 'http://www.cardbuy.net',
-        Referer: 'http://www.cardbuy.net/list/2Evpu'
+        Referer: 'http://www.xsfaka.com/orderquery?orderid='+order_no+'&querytype=2'
       },
       json: true
     };
     const res = await request(options);
     var card = '';
-    if (res.msg.match(/[A-z|-\d]+/)) {
-      card = res.msg.match(/[A-z|-\d]+/)[0];
+    if (res.msg.match(/[A-z|-\d]{2,}/)) {
+      card = res.msg.match(/[A-z|-\d]{2,}+/)[0];
     }
     return this.ctx.body = {
       status: res.status,
@@ -167,7 +207,6 @@ class PayController extends Controller {
         msg: '订单创建成功！'
       };
     } catch(err) {
-      console.log(err);
       this.ctx.body = {
         status: 0,
         msg: '订单创建失败！'
