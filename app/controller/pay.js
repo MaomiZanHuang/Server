@@ -132,7 +132,7 @@ class PayController extends Controller {
     const res = await request(options);
     var card = '';
     if (res.msg.match(/[A-z|-\d]{2,}/)) {
-      card = res.msg.match(/[A-z|-\d]{2,}+/)[0];
+      card = res.msg.match(/[A-z|-\d]{2,}/)[0];
     }
     return this.ctx.body = {
       status: res.status,

@@ -17,7 +17,6 @@ class UserController extends Controller {
 
     var matchUser;
     // 仅对绑定了账号密码的进行验证
-    console.log(open_id);
     if (typeof open_id !== 'undefined') {
       matchUser = await this.service.user.checkQQUser(open_id);
       if (!matchUser) {
