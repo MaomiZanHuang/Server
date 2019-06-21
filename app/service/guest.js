@@ -33,11 +33,19 @@ class GuestService extends Service {
       hot_goods_ids = [2003, 3003, 3002, 3001, 4001];
     }
 
-    return await this.ctx.model.GoodsItem.findAll({ where: {
+    var res = await this.ctx.model.GoodsItem.findAll({ where: {
       goods_id: {
         $in: hot_goods_ids
       }
     }});
+
+    res = res.sort((prev, next) => {
+      var prev_idx = hot_goods_ids.indexOf(parseInt(prev.dataValues.goods_id));
+      var next_idx = hot_goods_ids.indexOf(parseInt(next.dataValues.goods_id));
+      return prev_idx > next_idx;
+    });
+
+    return res;
   }
 
   // 公告前5条
