@@ -20,11 +20,24 @@ class GuestService extends Service {
 
   // 日销量前5商品
   async getTop5HotGoods() {
+    var hot_goods_ids = await this.ctx.model.Config.findOne({
+      attributes: ['v'],
+      where: {
+        k: 'hot_goods'
+      }
+    });
+
+    try {
+      hot_goods_ids = JSON.parse(hot_goods_ids.dataValues.v);
+    } catch(err) {
+      hot_goods_ids = [2003, 3003, 3002, 3001, 4001];
+    }
+
     return await this.ctx.model.GoodsItem.findAll({ where: {
       goods_id: {
-        $in: [2003, 3003, 3002, 3001, 4001]
+        $in: hot_goods_ids
       }
-    }, limit: 5 });
+    }});
   }
 
   // 公告前5条
